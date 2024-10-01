@@ -1,0 +1,49 @@
+.header-2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    color: #ffffff;
+  }
+  
+  .header-2.night-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  .header-2:not(.night-mode) {
+    background-color: #ffffff;
+    color: #000000;
+  }
+  
+  .btn-header2 {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  .btn-header2.night-mode {
+    background-color: #fff;
+    color: #000;
+  }
+  
+  .logo-header2 {
+    height: 60px;
+    cursor: pointer;
+  }
+  
+  .user-logo {
+    font-size: 28px;
+    cursor: pointer;
+  }
+  
+  .user-menu {
+    display: flex;
+    align-items: center;
+  }
+  
+  @media (max-width: 1140px) {
+    .hide-on-mobile {
+      display: none;
+    }
+  }
+  
