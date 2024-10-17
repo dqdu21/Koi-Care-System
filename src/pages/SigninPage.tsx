@@ -1,110 +1,40 @@
-import React, { useState } from 'react';
-import { Divider, Input, Radio } from 'antd';
-import axios, { AxiosResponse } from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../routes/AuthContext'; 
+import { Divider } from "antd";
+import FormSignIn from "../components/form/FormSignIn";
 
-interface LoginResponse {
-  token?: string;
-  message?: string;
-}
-
-const SigninPage: React.FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const { login } = useAuth();
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    
-    try {
-      const response: AxiosResponse<LoginResponse> = await axios.post(
-        'https://fall2024swd392-se1704-group1.onrender.com/account/login',
-        { email, password },
-        { 
-          headers: { 'Content-Type': 'application/json' },
-          validateStatus: () => true
-        }
-      );
-
-      if (response.status === 200 && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        login(); // Update global auth state
-        navigate('/'); // Redirect to homepage
-      } else {
-        setError(response.data.message || 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.');
-      }
-    } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(`Đăng nhập thất bại: ${err.response?.data?.message || err.message}`);
-      } else {
-        setError('Đăng nhập thất bại. Vui lòng kiểm tra kết nối mạng của bạn.');
-      }
-    }
-  };
-
-
+const SignInPage: React.FC = () => {
   return (
-    <div className="p-8 bg-slate-200 rounded-lg">
-      <h2 className="font-bold text-2xl text-center mb-5">Welcome Back</h2>
-      <p className="font-light text-base text-center mb-8">Login To Your FKoi Account!</p>
-      
-      <form onSubmit={handleSignIn}>
-        <div className="flex items-center justify-center cursor-pointer bg-green-400 my-4">
-          <i className="fa-brands fa-google"></i>
-          <p className="ml-3">Continue with Google</p>
-        </div>
-
-        <Input
-          className="my-4 text-sm"
-          size="large"
-          placeholder="Email address"
-          prefix={<i className="fa-solid fa-envelope"></i>}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input.Password
-          className="my-4 text-sm"
-          size="large"
-          placeholder="Password"
-          prefix={<i className="fa-solid fa-key"></i>}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <Radio className="mb-4">Remember me</Radio>
-
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-
-        <button
-          type="submit"
-          className="my-4 w-full bg-amber-500 px-4 py-2 rounded-md hover:bg-stone-900 hover:text-white"
-        >
-          Sign In
-        </button>
-      </form>
-
-      <p className="text-center">
-        Or{' '}
-        <a href="#" className="text-amber-500 hover:underline">
-          Forgot password
-        </a>
-        .
-      </p>
-      
-      <Divider />
-      
-      <p className="text-center text-sm">
-        Don't have an account?{' '}
-        <a className="text-amber-500 hover:underline" href="sign-up">
-          Sign Up
-        </a>
-      </p>
+    <div
+      className="flex min-h-screen w-full items-center justify-center bg-slate-300 p-4"
+    >
+      <div className="w-full max-w-md space-y-4 rounded-lg bg-white p-6 sm:p-8">
+        <h2 className="text-center text-xl font-bold text-gray-900 sm:text-2xl">
+          Welcome to FPT Education
+        </h2>
+        <p className="text-center text-base text-gray-600 sm:text-lg">
+          Sign in to your account
+        </p>
+        <FormSignIn />
+        <p className="text-center text-xs text-gray-500 sm:text-sm">
+          By signing in, you agree to our{" "}
+          <a className="text-black underline hover:text-red-500" href="#">
+            Terms of Use
+          </a>{" "}
+          and{" "}
+          <a className="text-black underline hover:text-red-500" href="#">
+            Privacy Policy
+          </a>
+          .
+        </p>
+        <Divider />
+        <p className="text-center text-xs sm:text-sm">
+          Don't have an account?{" "}
+          <a href="/sign-up" className="text-red-500 hover:underline">
+            Sign up
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
 
-export default SigninPage;
+export default SignInPage;

@@ -1,98 +1,40 @@
-import { Divider, Input, message } from 'antd';
-import { useState } from 'react';
-import axios from 'axios';
+import { Divider } from "antd";
+import FormSignUp from "../components/form/FormSignUp";
 
-const SignupPage: React.FC = () => {
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    if (password !== confirmPassword) {
-      message.error('Passwords do not match');
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const response = await axios.post(
-        'https://fall2024swd392-se1704-group1.onrender.com/account/register', 
-        { email, password },
-        { 
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-
-      if (response.data && response.data.token) {
-        localStorage.setItem('token', response.data.token);
-        message.success('Signup successful!');
-      } else {
-        throw new Error('Invalid response from server');
-      }
-    } catch (err) {
-      message.error('Signup failed. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+const SignUpPage = () => {
   return (
-    <div className="p-8 bg-slate-200 rounded-lg">
-      <h2 className="font-bold text-2xl text-center mb-5">Create an Account</h2>
-      <p className="font-light text-base text-center mb-8">Sign Up for FKoi!</p>
-
-      <form onSubmit={handleSignUp}>
-        <Input
-          className="my-4 text-sm"
-          size="large"
-          placeholder="Email address"
-          prefix={<i className="fa-solid fa-envelope"></i>}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={isLoading}
-        />
-        <Input.Password
-          className="my-4 text-sm"
-          size="large"
-          placeholder="Password"
-          prefix={<i className="fa-solid fa-key"></i>}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          disabled={isLoading}
-        />
-        <Input.Password
-          className="my-4 text-sm"
-          size="large"
-          placeholder="Confirm Password"
-          prefix={<i className="fa-solid fa-key"></i>}
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          disabled={isLoading}
-        />
-
-        <button
-          type="submit"
-          className="my-4 w-full bg-amber-500 px-4 py-2 rounded-md hover:bg-stone-900 hover:text-white"
-          disabled={isLoading}
-        >
-          {isLoading ? 'Processing...' : 'Sign Up'}
-        </button>
-      </form>
-
-      <Divider />
-
-      <p className="text-center text-sm">
-        Already have an account?{' '}
-        <a className="text-amber-500 hover:underline" href="sign-in">
-          Log In
-        </a>
-      </p>
+    <div
+      className="flex min-h-screen w-full items-center justify-center bg-slate-300 p-4 md:p-0">
+      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
+        <h2 className="mb-4 text-center text-2xl font-bold sm:text-3xl">
+          Welcome to F Care Shop
+        </h2>
+        <p className="mb-6 text-center text-sm font-light sm:text-base">
+          Create an account
+        </p>
+        <FormSignUp />
+        <p className="mt-4 text-center text-xs sm:text-sm">
+          By signing up, you agree to our{" "}
+          <a className="text-black underline hover:text-red-500" href="#">
+            Terms of Use
+          </a>{" "}
+          and{" "}
+          <a className="text-black underline hover:text-red-500" href="#">
+            Privacy Policy
+          </a>
+          .
+        </p>
+        <Divider className="my-4" />
+        <p className="text-center text-xs sm:text-sm">
+          Already have an account?{" "}
+          <a href="/sign-in" className="text-red-500 hover:underline">
+            Sign in
+          </a>
+        </p>
+      </div>
     </div>
   );
 };
 
-export default SignupPage;
+export default SignUpPage;
