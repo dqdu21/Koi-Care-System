@@ -8,7 +8,7 @@ const SignInPage: React.FC = () => {
     >
       <div className="w-full max-w-md space-y-4 rounded-lg bg-white p-6 sm:p-8">
         <h2 className="text-center text-xl font-bold text-gray-900 sm:text-2xl">
-          Welcome to FPT Education
+          Welcome to F Care Shop
         </h2>
         <p className="text-center text-base text-gray-600 sm:text-lg">
           Sign in to your account

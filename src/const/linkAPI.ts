@@ -1,2 +1,2 @@
 export const APILink =
-  "https://fall2024swd392-se1704-group1.onrender.com/";
+  "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/";

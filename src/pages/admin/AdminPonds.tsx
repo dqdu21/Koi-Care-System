@@ -28,7 +28,7 @@ const UserPonds: React.FC = () => {
   useEffect(() => {
     const fetchPonds = () => {
       axiosInstance
-        .get("https://fall2024swd392-se1704-group1.onrender.com/ponds/get-all-ponds")
+        .get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/get-all-ponds")
         .then((response) => {
           setPonds(response.data); // Set ponds state with API data
         })
@@ -82,8 +82,8 @@ const UserPonds: React.FC = () => {
   const handleCreatePond = (values: Pond) => {
     setLoading(true);
     const apiUrl = editingPond
-      ? `https://fall2024swd392-se1704-group1.onrender.com/ponds/update/${editingPond.id}`
-      : "https://fall2024swd392-se1704-group1.onrender.com/ponds/create-pond";
+      ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
+      : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
 
     axiosInstance
       .post(apiUrl, values)
@@ -113,7 +113,7 @@ const UserPonds: React.FC = () => {
   const handleDeletePond = (pondId?: number) => {
     if (!pondId) return;
     axiosInstance
-      .delete(`https://fall2024swd392-se1704-group1.onrender.com/ponds/delete-pond/${pondId}`)
+      .delete(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/delete-pond/${pondId}`)
       .then(() => {
         message.success("Pond deleted successfully!");
         setPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
@@ -196,10 +196,11 @@ const UserPonds: React.FC = () => {
                 </Form.Item>
               </Form>
             </Modal>
-          </Content>
+          
           <Footer className="footer">
             <AppFooter />
           </Footer>
+          </Content>
         </Layout>
       </Layout>
     </Layout>

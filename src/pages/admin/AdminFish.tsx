@@ -7,6 +7,7 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
+import SiderAdmin from "../../components/layout/SiderShop";
 
 // Define the type for a Fish
 interface Fish {
@@ -42,7 +43,7 @@ const FishManagement: React.FC = () => {
   }, []);
 
   const fetchFish = () => {
-    axiosInstance.get('https://fall2024swd392-se1704-group1.onrender.com/koifish/get-all-fish')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-all-fish')
       .then((response) => {
         setFishList(response.data);
       })
@@ -52,7 +53,7 @@ const FishManagement: React.FC = () => {
   };
 
   const fetchUserPonds = () => {
-    axiosInstance.get('https://fall2024swd392-se1704-group1.onrender.com/ponds/view-pond-by-account')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
       .then((response) => {
         setPonds(response.data);
       })
@@ -83,7 +84,7 @@ const FishManagement: React.FC = () => {
     };
   
     // Constructing the URL for the POST request
-    const url = `https://fall2024swd392-se1704-group1.onrender.com/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
+    const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
   
     axiosInstance.post(url, fishData)
       .then((response) => {
@@ -167,7 +168,7 @@ const FishManagement: React.FC = () => {
           trigger={null}
           width={230}
         >
-          <SiderInstructor
+          <SiderAdmin
             className={`transition-all duration-75 ${collapsed ? "w-0" : "w-64"}`}
           />
         </Sider>
@@ -291,10 +292,11 @@ const FishManagement: React.FC = () => {
                 </Form.Item>
               </Form>
             </Modal>
-          </Content>
+          
           <Footer className="bg-black">
             <AppFooter />
           </Footer>
+          </Content>
         </Layout>
       </Layout>
     </Layout>

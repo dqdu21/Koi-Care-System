@@ -21,7 +21,7 @@ const Shopping: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>('All'); // Default to all categories
-  const apiUrl = 'https://fall2024swd392-se1704-group1.onrender.com/item'; 
+  const apiUrl = 'https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/item'; 
 
   useEffect(() => {
     axios.get(apiUrl)

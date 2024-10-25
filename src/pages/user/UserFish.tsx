@@ -7,6 +7,7 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
+import SiderShop from "../../components/layout/SiderShop";
 
 // Define the type for a Fish
 interface Fish {
@@ -35,14 +36,27 @@ const FishManagement: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [fishList, setFishList] = useState<Fish[]>([]);
   const [ponds, setPonds] = useState<Pond[]>([]);
+  const [editingFish, setEditingFish] = useState<Fish | null>(null);
 
   useEffect(() => {
     fetchFish();
     fetchUserPonds();
   }, []);
 
+  const handleDeleteFish = (fishId: number) => {
+    const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/delete-fish/${fishId}`;
+    axiosInstance.delete(url)
+      .then(() => {
+        message.success("Fish deleted successfully!");
+        setFishList((prev) => prev.filter(fish => fish.id !== fishId));
+      })
+      .catch(() => {
+        message.error("Failed to delete fish. Please try again.");
+      });
+  };
+
   const fetchFish = () => {
-    axiosInstance.get('https://fall2024swd392-se1704-group1.onrender.com/koifish/get-all-fish')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-all-fish')
       .then((response) => {
         setFishList(response.data);
       })
@@ -52,13 +66,11 @@ const FishManagement: React.FC = () => {
   };
 
   const fetchUserPonds = () => {
-    axiosInstance.get('https://fall2024swd392-se1704-group1.onrender.com/ponds/view-pond-by-account')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
       .then((response) => {
         setPonds(response.data);
       })
-      .catch(() => {
-        message.error("Failed to fetch ponds. Please try again later.");
-      });
+      
   };
 
   const handleCreateFish = (values: Fish & { pondId: number }) => {
@@ -83,7 +95,7 @@ const FishManagement: React.FC = () => {
     };
   
     // Constructing the URL for the POST request
-    const url = `https://fall2024swd392-se1704-group1.onrender.com/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
+    const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
   
     axiosInstance.post(url, fishData)
       .then((response) => {
@@ -152,6 +164,20 @@ const FishManagement: React.FC = () => {
       dataIndex: 'note',
       key: 'note',
     },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (text: string, record: Fish) => (
+        <>
+          <Button type="link" onClick={() => { setEditingFish(record); setIsModalVisible(true); }}>
+            Update
+          </Button>
+          <Button type="link" danger onClick={() => handleDeleteFish(record.id!)}>
+            Delete
+          </Button>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -180,13 +206,13 @@ const FishManagement: React.FC = () => {
             <Table<Fish> dataSource={fishList} columns={columns} rowKey="id" className="mt-4" />
 
             <Modal
-              title="Create Fish"
+              title={editingFish ? "Update Fish" : "Create Fish"}
               visible={isModalVisible}
-              onCancel={() => setIsModalVisible(false)}
+              onCancel={() => { setIsModalVisible(false); setEditingFish(null); }}
               footer={null}
             >
               <Form layout="vertical" onFinish={handleCreateFish}>
-                <Form.Item
+                 <Form.Item
                   label="Select Pond"
                   name="pondId"
                   rules={[{ required: true, message: "Please select a pond!" }]}
@@ -292,12 +318,18 @@ const FishManagement: React.FC = () => {
                     Submit
                   </Button>
                 </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" loading={loading}>
+                    {editingFish ? "Update Fish" : "Create Fish"}
+                  </Button>
+                </Form.Item>
               </Form>
             </Modal>
-          </Content>
+          
           <Footer className="bg-black">
             <AppFooter />
           </Footer>
+          </Content>
         </Layout>
       </Layout>
     </Layout>

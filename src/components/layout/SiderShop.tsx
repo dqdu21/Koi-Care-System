@@ -31,14 +31,14 @@ const SiderAdmin: React.FC<{ className?: string }> = () => {
     {
       key: "3",
       icon: <ExceptionOutlined />,
-      label: "Help",
-      onClick: () => navigate("/shop-help"),
+      label: "Fish",
+      onClick: () => navigate("/Fish"),
     },
     {
       key: "4",
       icon: <BarChartOutlined />,
-      label: "Account",
-      onClick: () => navigate("/shop-account"),
+      label: "Ponds",
+      onClick: () => navigate("/pond"),
     },
     {
       key: "5",

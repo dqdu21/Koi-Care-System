@@ -7,6 +7,7 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
+import SiderShop from "../../components/layout/SiderShop";
 
 interface Item {
   id?: number;
@@ -147,7 +148,7 @@ const ShopItems: React.FC = () => {
           trigger={null}
           width={230}
         >
-          <SiderInstructor
+         < SiderShop
             className={`transition-all duration-75 ${collapsed ? "w-0" : "w-64"}`}
           />
         </Sider>
@@ -218,10 +219,11 @@ const ShopItems: React.FC = () => {
               </Form>
             </Modal>
 
-          </Content>
+          
           <Footer className="footer">
             <AppFooter />
           </Footer>
+          </Content>
         </Layout>
       </Layout>
     </Layout>

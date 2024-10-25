@@ -32,7 +32,7 @@ const AppHeader: React.FC = () => {
         </button>
         <div className="w-24 ml-4">
           <img
-            src="https://media.discordapp.net/attachments/739929914609762425/1282608405969768500/FKoi_1.png?ex=67101869&is=670ec6e9&hm=89684d0acd916f5a4ce568e942418110bb139e1258e75aa9973feda875b80a9b&=&format=webp&quality=lossless&width=1203&height=441"
+            src="https://cdn.discordapp.com/attachments/739929914609762425/1282608405969768500/FKoi_1.png?ex=671952e9&is=67180169&hm=c88e9ff776a6f360867f21d69656930fd0a721fa26ad7631d5d3527357080a21&"
             alt="FKoi Shop"
             className="w-full h-auto"
           />

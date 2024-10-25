@@ -7,6 +7,8 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
+import { useNavigate } from "react-router-dom";
+import SiderShop from "../../components/layout/SiderShop";
 
 interface Pond {
   id?: number;
@@ -24,18 +26,20 @@ const UserPonds: React.FC = () => {
   const [editingPond, setEditingPond] = useState<Pond | null>(null); // For editing
   const [form] = Form.useForm();
 
+
   // Fetch ponds data from API when component mounts
   useEffect(() => {
     const fetchPonds = () => {
       axiosInstance
-        .get("https://fall2024swd392-se1704-group1.onrender.com/ponds/view-pond-by-account")
+        .get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account")
         .then((response) => {
-          setPonds(response.data); // Set ponds state with API data
+          setPonds(response.data);// Set ponds state with API data
         })
         .catch(() => {
           message.error("Failed to fetch ponds!");
         });
-    };
+    }
+    
 
     fetchPonds(); // Call the function to fetch ponds
   }, []); // Empty dependency array to ensure this runs once on mount
@@ -84,8 +88,8 @@ const UserPonds: React.FC = () => {
   const handleCreatePond = (values: Pond) => {
     setLoading(true);
     const apiUrl = editingPond
-      ? `https://fall2024swd392-se1704-group1.onrender.com/ponds/update/${editingPond.id}`
-      : "https://fall2024swd392-se1704-group1.onrender.com/ponds/create-pond";
+      ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
+      : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
 
     axiosInstance
       .post(apiUrl, values)
@@ -115,7 +119,7 @@ const UserPonds: React.FC = () => {
   const handleDeletePond = (pondId?: number) => {
     if (!pondId) return;
     axiosInstance
-      .delete(`https://fall2024swd392-se1704-group1.onrender.com/ponds/delete-pond/${pondId}`)
+      .delete(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/delete-pond/${pondId}`)
       .then(() => {
         message.success("Pond deleted successfully!");
         setPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
@@ -209,10 +213,11 @@ const UserPonds: React.FC = () => {
   </Form>
 </Modal>
 
-          </Content>
+          
           <Footer className="footer">
             <AppFooter />
           </Footer>
+          </Content>
         </Layout>
       </Layout>
     </Layout>
