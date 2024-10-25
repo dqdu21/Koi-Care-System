@@ -7,9 +7,6 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
-import { useNavigate } from "react-router-dom";
-import SiderShop from "../../components/layout/SiderShop";
-
 interface Pond {
   id?: number;
   namePond: string;

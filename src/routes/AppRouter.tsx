@@ -11,6 +11,7 @@ import AdminPonds from '../pages/admin/AdminPonds';
 import AdminFish from '../pages/admin/AdminFish';
 import ShopItems from '../pages/shop/ShopItems';
 import Shopping from '../pages/shop/Shopping';
+import UserTicket from '../pages/user/UserTicket';
 
 
 
@@ -24,6 +25,7 @@ const AppRouter = () => {
         <Route path="sign-up" element={<SignupPage />} />
         <Route path="user-page" element={<UserPage />} />
         <Route path="pond" element={<UserPonds />} />
+        <Route path="ticket" element={<UserTicket />} />
         <Route path="fish" element={<FishManagement />} />
         <Route path="admin-page" element={<AdminPage />} />
         <Route path="admin-pond" element={<AdminPonds />} />
