@@ -31,8 +31,8 @@ const SiderAdmin: React.FC<{ className?: string }> = () => {
     {
       key: "3",
       icon: <ExceptionOutlined />,
-      label: "Fish",
-      onClick: () => navigate("/Fish"),
+      label: "Ticket",
+      onClick: () => navigate("/shop-ticket"),
     },
     {
       key: "4",

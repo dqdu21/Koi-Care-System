@@ -12,6 +12,7 @@ import AdminFish from '../pages/admin/AdminFish';
 import ShopItems from '../pages/shop/ShopItems';
 import Shopping from '../pages/shop/Shopping';
 import UserTicket from '../pages/user/UserTicket';
+import ShopTicket from '../pages/shop/ShopTicket';
 
 
 
@@ -33,6 +34,7 @@ const AppRouter = () => {
         <Route path="shop-page" element={<ShopPage />} />
         <Route path="shop-item" element={<ShopItems />} />
         <Route path="shopping" element={<Shopping />} />
+        <Route path="shop-ticket" element={<ShopTicket />} />
       </Routes>
     </BrowserRouter>
   );

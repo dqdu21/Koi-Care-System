@@ -43,8 +43,8 @@ const SiderInstructor: React.FC<{ className?: string }> = () => {
     {
       key: "5",
       icon: <StarOutlined />,
-      label: "Reviews",
-      onClick: () => navigate("/reviews"),
+      label: "Ticket",
+      onClick: () => navigate("/ticket"),
     },
     {
       key: "6",
