@@ -1,4 +1,4 @@
-import { Button, Card, Col, Layout, message, Row, Tabs } from 'antd';
+import {Layout} from 'antd';
 import Sider from 'antd/es/layout/Sider';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
 import AppHeader from '../components/layout/AppHeader';
@@ -12,77 +12,8 @@ import ImageSlider from "../components/surface/ImageSlider";
 import slider_1 from "../assets/Images/slider1.png";
 import slider_2 from "../assets/Images/slider2.png";
 import slider_3 from "../assets/Images/slider3.png";
-import { useEffect, useState } from 'react';
-import { axiosInstance } from '../services/axiosInstance';
-
-interface Product {
-  id: number;
-  itemName: string;
-  price: number;
-  quantity: number;
-  imageUrl: string;
-  category: string;
-}
-
-interface Fish {
-  id?: number;
-  fishName: string;
-  imageFish: string;
-  age: number;
-  species: string;
-  size: number;
-  weigh: number;
-  gender: string;
-  origin: string;
-  healthyStatus: string;
-  note?: string;
-  pondID: number;
-}
 
 const HomePage: React.FC = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [koiFish, setKoiFish] = useState<Fish[]>([]);
-  const [activeCategory, setActiveCategory] = useState<string>('All');
-  const apiUrl = 'https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/item';
-  const koiFishUrl = 'https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-all-fish';
-
-  useEffect(() => {
-    axiosInstance.get(apiUrl)
-      .then(response => {
-        setProducts(response.data);
-        setFilteredProducts(response.data); // Set initial products as all
-      })
-      .catch(error => {
-        console.error('Error fetching products:', error);
-      });
-
-    // Fetch koi fish data
-    axiosInstance.get(koiFishUrl)
-      .then(response => {
-        setKoiFish(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching koi fish:', error);
-      });
-  }, []);
-
-  const categories = ['Koi', 'Food', 'Item', 'Pond'];
-
-  const filterByCategory = (category: string) => {
-    if (category === 'Food') {
-      setFilteredProducts(products);
-    } else if (category === 'Koi') {
-      setFilteredProducts([]); // Clear product view when showing koi fish
-    } else {
-      setFilteredProducts(products.filter(product => product.category === category));
-    }
-    setActiveCategory(category);
-  };
-
-  const handleAddToCart = (item: Product | Fish) => {
-    message.success(`${'itemName' in item ? item.itemName : item.fishName} added to cart!`);
-  };
 
   const slides = [
     { url: slider_1, title: "slider_1" },
@@ -219,10 +150,6 @@ const HomePage: React.FC = () => {
       </div>
 
             <div className="p-8">
-
-
-              
-
               <Achievements />
               <section className="mt-10">
                 <div className="w-full flex justify-between mb-5">
