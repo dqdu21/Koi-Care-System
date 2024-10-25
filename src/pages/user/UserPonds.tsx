@@ -211,9 +211,7 @@ const UserPonds: React.FC = () => {
       </Button>
     </Form.Item>
   </Form>
-</Modal>
-
-          
+</Modal>          
           <Footer className="footer">
             <AppFooter />
           </Footer>

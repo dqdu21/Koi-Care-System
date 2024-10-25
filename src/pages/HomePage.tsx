@@ -219,70 +219,9 @@ const HomePage: React.FC = () => {
       </div>
 
             <div className="p-8">
-              <Tabs className="flex-1 overflow-auto p-4" activeKey={activeCategory} onChange={filterByCategory}>
-                {categories.map((category) => (
-                  <Tabs.TabPane tab={category} key={category} />
-                ))}
-              </Tabs>
 
-              {/* Show products if category is not 'Koi' */}
-              {activeCategory !== 'Koi' && (
-                <Row gutter={[16, 16]} className="mt-4 p-4">
-                  {filteredProducts.map((product) => (
-                    <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
-                      <Card
-                        hoverable
-                        cover={<img alt={product.itemName} src="https://saigonfish.com/upload/images/Beige%20Green%20Natural%20Skincare%20Product%20Promotion%20Instagram%20Post.jpg" style={{ height: 200, objectFit: 'cover' }} />}
-                        actions={[
-                          <Button type="primary" onClick={() => handleAddToCart(product)}>
-                            Add to Cart
-                          </Button>,
-                        ]}
-                      >
-                        <Card.Meta
-                          title={product.itemName}
-                          description={
-                            <>
-                              <p>Price: ${product.price}</p>
-                              <p>Quantity: {product.quantity}</p>
-                            </>
-                          }
-                        />
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              )}
 
-              {/* Show koi fish if category is 'Koi' */}
-              {activeCategory === 'Koi' && (
-                <Row gutter={[16, 16]} className="mt-4 p-4">
-                  {koiFish.map((fish) => (
-                    <Col xs={24} sm={12} md={8} lg={6} key={fish.id}>
-                      <Card
-                        hoverable
-                        cover={<img alt={fish.fishName} src={fish.imageFish} style={{ height: 200, objectFit: 'cover' }} />}
-                        actions={[
-                          <Button type="primary" onClick={() => handleAddToCart(fish)}>
-                            Add to Cart
-                          </Button>,
-                        ]}
-                      >
-                        <Card.Meta
-                          title={fish.fishName}
-                          description={
-                            <>
-                              <p>Size: {fish.size} cm</p>
-                              <p>Species: {fish.species}</p>
-                              <p>Origin: {fish.origin}</p>
-                            </>
-                          }
-                        />
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              )}
+              
 
               <Achievements />
               <section className="mt-10">
