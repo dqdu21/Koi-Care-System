@@ -13,6 +13,7 @@ interface Pond {
   fishname: string;
   image: string;
   size: string;
+  height: string;
 }
 
 const UserPonds: React.FC = () => {
@@ -64,6 +65,12 @@ const UserPonds: React.FC = () => {
       dataIndex: "pondSize",
       key: "pondSize", // Use pondSize instead of size
       render: (size: number) => `${size} m²`, // Display with the unit
+    },
+    {
+      title: "Height (m)",
+      dataIndex: "pondHeight",
+      key: "pondHeight", // Use pondSize instead of size
+      render: (height: number) => `${height} m²`, // Display with the unit
     },
     {
       title: "Actions",
@@ -134,6 +141,7 @@ const UserPonds: React.FC = () => {
       namePond: pond.namePond,
       image: pond.image,
       pondSize: pond.size,
+      pondHeight: pond.height,
     });
   
     setIsModalVisible(true);
@@ -199,6 +207,13 @@ const UserPonds: React.FC = () => {
       label="Size (m²)"
       name="pondSize"
       rules={[{ required: true, message: "Please input the pond size!" }]}
+    >
+      <InputNumber min={0} className="w-full" />
+    </Form.Item>
+    <Form.Item
+      label="Height (m)"
+      name="pondHeight"
+      rules={[{ required: true, message: "Please input the pond height!" }]}
     >
       <InputNumber min={0} className="w-full" />
     </Form.Item>
