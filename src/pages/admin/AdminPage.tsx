@@ -5,7 +5,6 @@ import { Content, Footer, Header } from "antd/es/layout/layout";
 import { useSider } from "../../app/context/SiderProvider";
 import AppFooter from "../../components/layout/AppFooter";
 import AppHeader from "../../components/layout/AppHeader";
-import InstructorOverview from "../UserOverview";
 import InstructorPie from "./../InstructorPie";
 import InstructorChart from "./../InstructorChart";
 import SiderAdmin from "../../components/layout/SiderAdmin";

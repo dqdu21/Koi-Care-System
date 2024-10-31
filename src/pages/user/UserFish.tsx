@@ -203,7 +203,7 @@ const FishManagement: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (text: string, record: Fish) => (
+      render: ( record: Fish) => (
         <>
           <Button type="link" onClick={() => openEditFishModal(record)}>
             Update

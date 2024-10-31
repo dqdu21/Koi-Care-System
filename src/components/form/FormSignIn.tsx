@@ -1,6 +1,6 @@
 import { Button, Checkbox, Form, Input, notification } from "antd";
 import { useState, createContext, useContext, useEffect } from "react";
-import { login as loginService, getCurrentLogin, fetchUserRole } from "../../services/authService";
+import { login as loginService, getCurrentLogin } from "../../services/authService";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { User } from "../../models/Types";
 import { useNavigate } from "react-router-dom";
@@ -18,7 +18,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   // Kiểm tra token khi app khởi chạy
   useEffect(() => {

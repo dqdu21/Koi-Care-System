@@ -172,7 +172,7 @@ const UserTicket: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (text: string, record: Ticket) => (
+      render: (record: Ticket) => (
         <>
           <Button type="link" onClick={() => handleEditButtonClick(record)}>
             Edit

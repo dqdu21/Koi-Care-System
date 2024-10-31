@@ -1,6 +1,5 @@
 import { Card, Col, Row, Typography, Grid, Spin } from "antd";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { axiosInstance } from "../services/axiosInstance";
 
 const { Title } = Typography;

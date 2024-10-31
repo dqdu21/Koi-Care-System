@@ -1,7 +1,5 @@
 import {
   AppstoreOutlined,
-  BarChartOutlined,
-  DollarOutlined,
   ExceptionOutlined,
   ReadOutlined,
   StarOutlined,

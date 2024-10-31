@@ -25,7 +25,6 @@ import Sider from 'antd/es/layout/Sider';
 import { Content, Footer, Header } from 'antd/es/layout/layout';
 import AppHeader from '../components/layout/AppHeader';
 import AppFooter from '../components/layout/AppFooter';
-import AppSider from '../components/layout/AppSider';
 import SiderAdmin from '../components/layout/SiderAdmin'; // Import SiderAdmin
 import SiderShop from '../components/layout/SiderShop'; // Import SiderShop
 import { useSider } from '../app/context/SiderProvider';

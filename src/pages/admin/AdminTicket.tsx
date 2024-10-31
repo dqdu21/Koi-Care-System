@@ -1,4 +1,4 @@
-import { Layout, Table, Button, Modal, Form, Input, InputNumber, message, Popconfirm, Select, Switch } from "antd"; // Add Switch here
+import { Layout, Table, Button, Modal, Form, Input, message, Popconfirm, Select} from "antd"; // Add Switch here
 import Sider from "antd/es/layout/Sider";
 import { Content, Footer, Header } from "antd/es/layout/layout";
 import { useState, useEffect } from "react";
@@ -185,7 +185,7 @@ const AdminTicket: React.FC = () => {
     {
       title: 'Processed',
       key: 'processed',
-      render: (text: string, record: Ticket) => (
+      render: ( record: Ticket) => (
         <Button 
           type={record.isProcessed ? 'primary' : 'default'} 
           onClick={() => handleToggleProcessed(record.id!)} 
@@ -198,7 +198,7 @@ const AdminTicket: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
-      render: (text: string, record: Ticket) => (
+      render: ( record: Ticket) => (
         <>
           <Button type="link" onClick={() => handleEditButtonClick(record)}>
             Edit

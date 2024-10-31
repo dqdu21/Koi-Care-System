@@ -1,10 +1,7 @@
 import {
   AppstoreOutlined,
-  BarChartOutlined,
-  DollarOutlined,
   ExceptionOutlined,
   ReadOutlined,
-  StarOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
 import { Divider, Menu } from "antd";

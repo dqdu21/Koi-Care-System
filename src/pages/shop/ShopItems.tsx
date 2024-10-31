@@ -4,7 +4,6 @@ import { Content, Footer, Header } from "antd/es/layout/layout";
 import { useState, useEffect } from "react";
 import { useSider } from "../../app/context/SiderProvider";
 import AppFooter from "../../components/layout/AppFooter";
-import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
 import SiderShop from "../../components/layout/SiderShop";
