@@ -7,14 +7,13 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
-import SiderShop from "../../components/layout/SiderShop";
 
 // Define the type for a Fish
 interface Fish {
   id?: number;
   fishName: string;
   imageFish: string;
-  age: number;
+  birthDay: string;
   species: string;
   size: number;
   weigh: number;
@@ -56,13 +55,10 @@ const FishManagement: React.FC = () => {
   };
 
   const fetchFish = () => {
-    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-fish-by-account')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-koi-fish-by-account')
       .then((response) => {
         setFishList(response.data);
       })
-      .catch(() => {
-        message.error("Failed to fetch fish data. Please try again later.");
-      });
   };
 
   const fetchUserPonds = () => {
@@ -77,13 +73,13 @@ const FishManagement: React.FC = () => {
     setLoading(true);
   
     // Construct the URL using the pond ID
-    const { pondId, fishName, imageFish, age, species, size, weigh, gender, origin, healthyStatus, note } = values;
+    const { pondId, fishName, imageFish, birthDay, species, size, weigh, gender, origin, healthyStatus, note } = values;
   
     const fishData: Fish = {
       id: 0, // Temporary ID
       fishName: fishName,
       imageFish: imageFish,
-      age: age,
+      birthDay: birthDay,
       species: species,
       size: size,
       weigh: weigh,
@@ -125,9 +121,9 @@ const FishManagement: React.FC = () => {
       render: (text: string) => <img src={text} alt="Fish" style={{ width: 50, height: 50 }} />,
     },
     {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
+      title: 'birthDay',
+      dataIndex: 'birthDay',
+      key: 'birthDay',
     },
     {
       title: 'Species',
@@ -240,8 +236,8 @@ const FishManagement: React.FC = () => {
                   <Input />
                 </Form.Item>
                 <Form.Item
-                  label="Age"
-                  name="age"
+                  label="birthDay"
+                  name="birthDay"
                   rules={[{ required: true, message: "Please input the age!" }]}
                 >
                   <InputNumber min={0} className="w-full" />

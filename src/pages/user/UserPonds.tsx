@@ -7,15 +7,14 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
-import { useNavigate } from "react-router-dom";
 
 interface Pond {
   id?: number;
   namePond: string;
   fishname: string;
   image: string;
-  pondSize: number;
-  volume: number;
+  size: number;
+  height: number;
 }
 
 const UserPonds: React.FC = () => {
@@ -25,7 +24,6 @@ const UserPonds: React.FC = () => {
   const [ponds, setPonds] = useState<Pond[]>([]);
   const [editingPond, setEditingPond] = useState<Pond | null>(null);
   const [form] = Form.useForm();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPonds = async () => {
@@ -92,19 +90,16 @@ const UserPonds: React.FC = () => {
         ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
         : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
   
-      // Log the values to confirm they contain pondSize and volume
       console.log("Submitted values:", values);
   
-      // Make API call with form values
       const response = await axiosInstance.post(apiUrl, {
         ...values,
-        pondSize: Number(values.pondSize), // Ensure pondSize is sent as a number
-        volume: Number(values.volume)       // Ensure volume is sent as a number
+        size: Number(values.size), // Ensure pondSize is sent as a number
+        height: Number(values.height)       // Ensure volume is sent as a number
       });
   
       message.success(editingPond ? "Pond updated successfully!" : "Pond created successfully!");
-  
-      // Update ponds in the state
+
       setPonds((prevPonds) =>
         editingPond
           ? prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
@@ -141,8 +136,8 @@ const UserPonds: React.FC = () => {
     form.setFieldsValue({
       namePond: pond.namePond,
       image: pond.image,
-      pondSize: pond.pondSize,
-      volume: pond.volume,
+      size: pond.size,
+      height: pond.height,
     });
     setIsModalVisible(true);
   };
@@ -204,14 +199,14 @@ const UserPonds: React.FC = () => {
                 </Form.Item>
                 <Form.Item
                   label="Size (m²)"
-                  name="pondSize"
+                  name="size"
                   rules={[{ required: true, message: "Please input the pond size!" }]}
                 >
                   <InputNumber min={0} className="w-full" />
                 </Form.Item>
                 <Form.Item
-                  label="Volume (m³)"
-                  name="volume"
+                  label="Height (m)"
+                  name="height"
                   rules={[{ required: true, message: "Please input the pond volume!" }]}
                 >
                   <InputNumber min={0} className="w-full" />
