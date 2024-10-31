@@ -18,14 +18,26 @@ interface Ticket {
   message: string; // Nội dung tin nhắn
 }
 
+interface Pond {
+  id: number;
+  name: string;
+}
+
+interface Fish {
+  id: number;
+  name: string;
+  pondID: number; // Giả sử có thuộc tính này để liên kết cá với hồ
+}
+
 const UserTicket: React.FC = () => {
   const { collapsed } = useSider();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [ticketList, setTicketList] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
-  const [pondList, setPondList] = useState<any[]>([]); // Danh sách hồ
-  const [fishList, setFishList] = useState<any[]>([]); // Danh sách cá
+  const [ponds, setPonds] = useState<Pond[]>([]);
+  const [fishs, setFishs] = useState<Fish[]>([]); // Danh sách cá
+  const [filteredFish, setFilteredFish] = useState<Fish[]>([]); // Danh sách cá đã lọc
 
   useEffect(() => {
     fetchUserPonds();
@@ -33,28 +45,34 @@ const UserTicket: React.FC = () => {
     fetchTickets();
   }, []);
 
-  
   const fetchTickets = () => {
-    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ticket/get-all-ticket')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ticket/get-ticket-by-account')
       .then((response) => {
-        setTicketList(response.data.ticket);
+        console.log("Tickets Response:", response.data);
+        setTicketList(response.data.ticket || []);
       });
   };
 
   const fetchUserPonds = () => {
-    axiosInstance
-      .get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
       .then((response) => {
-        setPondList(response.data.ponds);
+        setPonds(response.data);
       });
   };
 
   const fetchFish = () => {
-    axiosInstance
-      .get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-koi-fish-by-account')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-koi-fish-by-account')
       .then((response) => {
-        setFishList(response.data.fish);
+        setFishs(response.data);
+        setFilteredFish(response.data); // Gán cá ban đầu vào danh sách cá đã lọc
       });
+  };
+
+  const handlePondChange = (pondID: number) => {
+    // Lọc cá dựa trên hồ đã chọn
+    const availableFish = fishs.filter(fish => fish.pondID === pondID);
+    setFilteredFish(availableFish);
+    form.setFieldsValue({ fishID: undefined }); // Reset cá khi hồ thay đổi
   };
 
   const handleCreateTicket = (values: Ticket) => {
@@ -169,8 +187,8 @@ const UserTicket: React.FC = () => {
                   name="pondID"
                   rules={[{ required: true, message: "Please select a pond!" }]}
                 >
-                  <Select placeholder="Select a pond">
-                    {pondList.map((pond) => (
+                  <Select placeholder="Select a pond" onChange={handlePondChange}>
+                    {ponds.map((pond) => (
                       <Option key={pond.id} value={pond.id}>
                         {pond.name}
                       </Option>
@@ -183,7 +201,7 @@ const UserTicket: React.FC = () => {
                   rules={[{ required: true, message: "Please select a fish!" }]}
                 >
                   <Select placeholder="Select a fish">
-                    {fishList.map((fish) => (
+                    {filteredFish.map((fish) => (
                       <Option key={fish.id} value={fish.id}>
                         {fish.name}
                       </Option>
