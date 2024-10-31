@@ -22,7 +22,9 @@ const UserPonds: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ponds, setPonds] = useState<Pond[]>([]);
+  const [filteredPonds, setFilteredPonds] = useState<Pond[]>([]);
   const [editingPond, setEditingPond] = useState<Pond | null>(null);
+  const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -30,12 +32,24 @@ const UserPonds: React.FC = () => {
       try {
         const response = await axiosInstance.get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account");
         setPonds(response.data);
+        setFilteredPonds(response.data);
       } catch (error) {
         console.error("Error fetching ponds:", error);
       }
     };
     fetchPonds();
   }, []);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchText(value);
+
+    // Filter ponds based on search input
+    const filteredData = ponds.filter((pond) =>
+      pond.namePond.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredPonds(filteredData);
+  };
 
   const columns = [
     {
@@ -85,41 +99,39 @@ const UserPonds: React.FC = () => {
 
   const handleCreatePond = async (values: Pond) => {
     try {
-      // Define the API URL based on whether we're editing or creating a pond
       const apiUrl = editingPond
         ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
         : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
-  
-      // Set loading state before the API call
+
       setLoading(true);
-  
-      // Use PUT for updating, POST for creating
       const method = editingPond ? 'put' : 'post';
-  
-      // Make the API request
       const response = await axiosInstance[method](apiUrl, {
         ...values,
-        size: Number(values.size), // Ensure size is sent as a number
-        height: Number(values.height), // Ensure height is sent as a number
+        size: Number(values.size),
+        height: Number(values.height),
       });
-  
+
       message.success(editingPond ? "Pond updated successfully!" : "Pond created successfully!");
-  
       setPonds((prevPonds) =>
         editingPond
           ? prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
           : [...prevPonds, response.data]
       );
-  
-      // Reset form and close modal
+      setFilteredPonds((prevPonds) =>
+        editingPond
+          ? prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
+          : [...prevPonds, response.data]
+      );
+
       form.resetFields();
       setIsModalVisible(false);
       setEditingPond(null);
     } catch (error) {
       message.error(editingPond ? "Failed to update pond!" : "Failed to create pond!");
+    } finally {
+      setLoading(false);
     }
   };
-  
 
   const handleDeletePond = async (pondId?: number) => {
     if (!pondId) return;
@@ -127,6 +139,7 @@ const UserPonds: React.FC = () => {
       await axiosInstance.delete(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/delete-pond/${pondId}`);
       message.success("Pond deleted successfully!");
       setPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
+      setFilteredPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
     } catch (error) {
       console.error("Error deleting pond:", error);
       message.error("Failed to delete pond!");
@@ -163,12 +176,19 @@ const UserPonds: React.FC = () => {
         </Sider>
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
+            <Input
+              placeholder="Search by pond name"
+              value={searchText}
+              onChange={handleSearch}
+              style={{ marginBottom: 16, width: 300 }}
+            />
+
             <Button type="primary" onClick={() => setIsModalVisible(true)}>
               Create Pond
             </Button>
 
             <Table<Pond>
-              dataSource={ponds}
+              dataSource={filteredPonds}
               columns={columns}
               rowKey="id"
               className="mt-4"
