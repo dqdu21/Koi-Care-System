@@ -13,6 +13,7 @@ import ShopItems from '../pages/shop/ShopItems';
 import Shopping from '../pages/shop/Shopping';
 import UserTicket from '../pages/user/UserTicket';
 import ShopTicket from '../pages/shop/ShopTicket';
+import Profile from '../pages/Profile';
 
 
 interface ProtectedRouteProps {
@@ -78,6 +79,7 @@ const AppRouter = () => {
         <Route path="sign-in" element={<SigninPage />} />
         <Route path="sign-up" element={<SignupPage />} />
         <Route path="user-page" element={<UserPage />} />
+        <Route path="profile" element={<Profile />} />
         <Route path="pond" element={<UserPonds />} />
         <Route path="ticket" element={<UserTicket />} />
         <Route path="fish" element={<FishManagement />} />
