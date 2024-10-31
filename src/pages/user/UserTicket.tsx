@@ -34,12 +34,14 @@ interface Fish {
 const UserTicket: React.FC = () => {
   const { collapsed } = useSider();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false); // Để xác định chế độ chỉnh sửa
   const [ticketList, setTicketList] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [ponds, setPonds] = useState<Pond[]>([]);
   const [fishs, setFishs] = useState<Fish[]>([]);
   const [filteredFish, setFilteredFish] = useState<Fish[]>([]);
+  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null); // Ticket đang chỉnh sửa
 
   useEffect(() => {
     fetchUserPonds();
@@ -108,8 +110,43 @@ const UserTicket: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
-}
+  };
 
+  const handleEditTicket = (values: Ticket) => {
+    if (editingTicket) {
+      setLoading(true);
+      axiosInstance
+        .post(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ticket/create-ticket/${editingTicket.id}/${values.pondID}/${values.fishID}`, {
+          name: values.name,
+          text: values.text,
+        })
+        .then(() => {
+          message.success("Ticket updated successfully!");
+          fetchTickets(); 
+          setIsModalVisible(false);
+          form.resetFields();
+        })
+        .catch((error) => {
+          console.error("Failed to edit ticket:", error.response ? error.response.data : error.message);
+          message.error("Failed to edit ticket. Please check your data and try again.");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  };
+
+  const handleEditButtonClick = (ticket: Ticket) => {
+    setIsEditMode(true);
+    setEditingTicket(ticket);
+    form.setFieldsValue({
+      name: ticket.name,
+      text: ticket.text,
+      pondID: ticket.pondID,
+      fishID: ticket.fishID,
+    });
+    setIsModalVisible(true);
+  };
 
   const handleDeleteTicket = (ticketID: number) => {
     axiosInstance
@@ -148,16 +185,21 @@ const UserTicket: React.FC = () => {
       title: 'Actions',
       key: 'actions',
       render: (text: string, record: Ticket) => (
-        <Popconfirm
-          title="Are you sure to delete this ticket?"
-          onConfirm={() => handleDeleteTicket(record.id!)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button type="link" danger>
-            Delete
+        <>
+          <Button type="link" onClick={() => handleEditButtonClick(record)}>
+            Edit
           </Button>
-        </Popconfirm>
+          <Popconfirm
+            title="Are you sure to delete this ticket?"
+            onConfirm={() => handleDeleteTicket(record.id!)}
+            okText="Yes"
+            cancelText="No"
+          >
+            <Button type="link" danger>
+              Delete
+            </Button>
+          </Popconfirm>
+        </>
       ),
     },
   ];
@@ -181,18 +223,26 @@ const UserTicket: React.FC = () => {
         </Sider>
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
-            <Button type="primary" onClick={() => setIsModalVisible(true)}>
+            <Button type="primary" onClick={() => {
+              setIsEditMode(false); // Reset chế độ chỉnh sửa
+              setIsModalVisible(true);
+            }}>
               Create Ticket
             </Button>
             <Table<Ticket> dataSource={ticketList} columns={columns} rowKey="id" className="mt-4" loading={loading} />
 
             <Modal
-              title="Create Ticket"
+              title={isEditMode ? "Edit Ticket" : "Create Ticket"}
               visible={isModalVisible}
-              onCancel={() => setIsModalVisible(false)}
+              onCancel={() => {
+                setIsModalVisible(false);
+                setIsEditMode(false);
+                setEditingTicket(null);
+                form.resetFields();
+              }}
               footer={null}
             >
-              <Form layout="vertical" onFinish={handleCreateTicket} form={form}>
+              <Form layout="vertical" onFinish={isEditMode ? handleEditTicket : handleCreateTicket} form={form}>
                 <Form.Item
                   label="Name"
                   name="name"
@@ -235,15 +285,16 @@ const UserTicket: React.FC = () => {
                 </Form.Item>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" loading={loading}>
-                    Create Ticket
+                    {isEditMode ? "Update Ticket" : "Create Ticket"}
                   </Button>
                 </Form.Item>
               </Form>
             </Modal>
-          </Content>
+          
           <Footer className="footer">
             <AppFooter />
           </Footer>
+          </Content>
         </Layout>
       </Layout>
     </Layout>
