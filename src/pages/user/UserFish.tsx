@@ -56,7 +56,7 @@ const FishManagement: React.FC = () => {
   };
 
   const fetchFish = () => {
-    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-all-fish')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-fish-by-account')
       .then((response) => {
         setFishList(response.data);
       })

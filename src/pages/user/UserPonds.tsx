@@ -7,13 +7,15 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
+import { useNavigate } from "react-router-dom";
+
 interface Pond {
   id?: number;
   namePond: string;
   fishname: string;
   image: string;
-  size: string;
-  height: string;
+  pondSize: number;
+  volume: number;
 }
 
 const UserPonds: React.FC = () => {
@@ -21,26 +23,21 @@ const UserPonds: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ponds, setPonds] = useState<Pond[]>([]);
-  const [editingPond, setEditingPond] = useState<Pond | null>(null); // For editing
+  const [editingPond, setEditingPond] = useState<Pond | null>(null);
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
-
-  // Fetch ponds data from API when component mounts
   useEffect(() => {
-    const fetchPonds = () => {
-      axiosInstance
-        .get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account")
-        .then((response) => {
-          setPonds(response.data);// Set ponds state with API data
-        })
-        .catch(() => {
-          message.error("Failed to fetch ponds!");
-        });
-    }
-    
-
-    fetchPonds(); // Call the function to fetch ponds
-  }, []); // Empty dependency array to ensure this runs once on mount
+    const fetchPonds = async () => {
+      try {
+        const response = await axiosInstance.get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account");
+        setPonds(response.data);
+      } catch (error) {
+        console.error("Error fetching ponds:", error);
+      }
+    };
+    fetchPonds();
+  }, []);
 
   const columns = [
     {
@@ -52,7 +49,7 @@ const UserPonds: React.FC = () => {
       title: "Fish Names",
       dataIndex: "fishname",
       key: "fishname",
-      render: (fishname: string[]) => fishname.join(", "), // Join fish names into a string
+      render: (fishname: string[]) => fishname.join(", "),
     },
     {
       title: "Image",
@@ -63,14 +60,14 @@ const UserPonds: React.FC = () => {
     {
       title: "Size (m²)",
       dataIndex: "pondSize",
-      key: "pondSize", // Use pondSize instead of size
-      render: (size: number) => `${size} m²`, // Display with the unit
+      key: "pondSize",
+      render: (pondSize: number) => `${pondSize} m²`,
     },
     {
-      title: "Height (m)",
-      dataIndex: "pondHeight",
-      key: "pondHeight", // Use pondSize instead of size
-      render: (height: number) => `${height} m²`, // Display with the unit
+      title: "Volume (m³)",
+      dataIndex: "volume",
+      key: "volume",
+      render: (volume: number) => `${volume} m³`,
     },
     {
       title: "Actions",
@@ -87,66 +84,68 @@ const UserPonds: React.FC = () => {
       ),
     },
   ];
+
+  const handleCreatePond = async (values: Pond) => {
+    setLoading(true);
+    try {
+      const apiUrl = editingPond
+        ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
+        : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
+  
+      // Log the values to confirm they contain pondSize and volume
+      console.log("Submitted values:", values);
+  
+      // Make API call with form values
+      const response = await axiosInstance.post(apiUrl, {
+        ...values,
+        pondSize: Number(values.pondSize), // Ensure pondSize is sent as a number
+        volume: Number(values.volume)       // Ensure volume is sent as a number
+      });
+  
+      message.success(editingPond ? "Pond updated successfully!" : "Pond created successfully!");
+  
+      // Update ponds in the state
+      setPonds((prevPonds) =>
+        editingPond
+          ? prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
+          : [...prevPonds, response.data]
+      );
+  
+      // Reset form and close modal
+      form.resetFields();
+      setIsModalVisible(false);
+      setEditingPond(null);
+    } catch (error) {
+      console.error("Error creating/updating pond:", error);
+      message.error(editingPond ? "Failed to update pond!" : "Failed to create pond!");
+    } finally {
+      setLoading(false);
+    }
+  };
   
 
-  const handleCreatePond = (values: Pond) => {
-    setLoading(true);
-    const apiUrl = editingPond
-      ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
-      : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
-
-    axiosInstance
-      .post(apiUrl, values)
-      .then((response) => {
-        message.success(editingPond ? "Pond updated successfully!" : "Pond created successfully!");
-
-        if (editingPond) {
-          setPonds((prevPonds) =>
-            prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
-          );
-        } else {
-          setPonds([...ponds, response.data]);
-        }
-
-        setIsModalVisible(false);
-        setEditingPond(null);
-        form.resetFields();
-      })
-      .catch(() => {
-        message.error(editingPond ? "Failed to update pond!" : "Failed to create pond!");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  const handleDeletePond = (pondId?: number) => {
+  const handleDeletePond = async (pondId?: number) => {
     if (!pondId) return;
-    axiosInstance
-      .delete(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/delete-pond/${pondId}`)
-      .then(() => {
-        message.success("Pond deleted successfully!");
-        setPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
-      })
-      .catch(() => {
-        message.error("Failed to delete pond!");
-      });
+    try {
+      await axiosInstance.delete(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/delete-pond/${pondId}`);
+      message.success("Pond deleted successfully!");
+      setPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
+    } catch (error) {
+      console.error("Error deleting pond:", error);
+      message.error("Failed to delete pond!");
+    }
   };
 
   const handleEditPond = (pond: Pond) => {
     setEditingPond(pond);
-  
-    // Set the form values (only for editable fields)
     form.setFieldsValue({
       namePond: pond.namePond,
       image: pond.image,
-      pondSize: pond.size,
-      pondHeight: pond.height,
+      pondSize: pond.pondSize,
+      volume: pond.volume,
     });
-  
     setIsModalVisible(true);
   };
-  
 
   return (
     <Layout className="flex h-screen w-screen flex-col">
@@ -178,52 +177,53 @@ const UserPonds: React.FC = () => {
               className="mt-4"
             />
 
-<Modal
-  title={editingPond ? "Update Pond" : "Create Pond"}
-  visible={isModalVisible}
-  onCancel={() => {
-    setIsModalVisible(false);
-    setEditingPond(null);
-    form.resetFields();
-  }}
-  footer={null}
->
-  <Form layout="vertical" onFinish={handleCreatePond} form={form}>
-    <Form.Item
-      label="Pond Name"
-      name="namePond"
-      rules={[{ required: true, message: "Please input the pond name!" }]}
-    >
-      <Input />
-    </Form.Item>
-    <Form.Item
-      label="Image URL"
-      name="image"
-      rules={[{ required: true, message: "Please input the image URL!" }]}
-    >
-      <Input />
-    </Form.Item>
-    <Form.Item
-      label="Size (m²)"
-      name="pondSize"
-      rules={[{ required: true, message: "Please input the pond size!" }]}
-    >
-      <InputNumber min={0} className="w-full" />
-    </Form.Item>
-    <Form.Item
-      label="Height (m)"
-      name="pondHeight"
-      rules={[{ required: true, message: "Please input the pond height!" }]}
-    >
-      <InputNumber min={0} className="w-full" />
-    </Form.Item>
-    <Form.Item>
-      <Button type="primary" htmlType="submit" loading={loading}>
-        {editingPond ? "Update" : "Submit"}
-      </Button>
-    </Form.Item>
-  </Form>
-</Modal>          
+            <Modal
+              title={editingPond ? "Update Pond" : "Create Pond"}
+              visible={isModalVisible}
+              onCancel={() => {
+                setIsModalVisible(false);
+                setEditingPond(null);
+                form.resetFields();
+              }}
+              footer={null}
+            >
+              <Form layout="vertical" onFinish={handleCreatePond} form={form}>
+                <Form.Item
+                  label="Pond Name"
+                  name="namePond"
+                  rules={[{ required: true, message: "Please input the pond name!" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="Image URL"
+                  name="image"
+                  rules={[{ required: true, message: "Please input the image URL!" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label="Size (m²)"
+                  name="pondSize"
+                  rules={[{ required: true, message: "Please input the pond size!" }]}
+                >
+                  <InputNumber min={0} className="w-full" />
+                </Form.Item>
+                <Form.Item
+                  label="Volume (m³)"
+                  name="volume"
+                  rules={[{ required: true, message: "Please input the pond volume!" }]}
+                >
+                  <InputNumber min={0} className="w-full" />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" loading={loading}>
+                    {editingPond ? "Update" : "Submit"}
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Modal>
+          
           <Footer className="footer">
             <AppFooter />
           </Footer>

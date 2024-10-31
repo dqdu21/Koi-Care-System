@@ -1,6 +1,6 @@
 import { Button, Checkbox, Form, Input, notification } from "antd";
 import { useState, createContext, useContext, useEffect } from "react";
-import { login as loginService, getCurrentLogin } from "../../services/authService";
+import { login as loginService, getCurrentLogin, fetchUserRole } from "../../services/authService";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
 import { User } from "../../models/Types";
 import { useNavigate } from "react-router-dom";
@@ -63,6 +63,7 @@ export const useAuth = () => {
   return context;
 };
 
+
 const FormSignIn = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
@@ -73,26 +74,31 @@ const FormSignIn = () => {
     setIsRemembered(e.target.checked);
   };
 
-  const handleLogin = async (values: { email: string; password: string }) => {
+  
+
+  const handleLogin = async (values: { email: string; password: string, role: string }) => {
     try {
       setLoading(true);
-      const token = await loginService(values.email, values.password); // Gọi API đăng nhập
+      const token = await loginService(values.email, values.password, values.role); // Call the login API
       if (token) {
-        const user: User = await getCurrentLogin(token); // Lấy thông tin user từ API
+        const user: User = await getCurrentLogin(token); // Fetch user info with the token
         if (user?.data) {
-          login(token, user); // Lưu thông tin người dùng vào AuthContext
+          login(token, user); 
           notification.success({
             message: "Login Successful",
           });
         }
-      }
-      if (values.email === "admin@gmail.com") {
-        navigate("/admin-page");
-      } else if (values.email === "shop@gmail.com") {
-        navigate("/shop-page");
-      } else {
-        navigate("/user-page");
-      }
+        }
+            if (values.email === "ADMIN1@gmail.com") {
+              navigate("/admin-page");
+            } else if (values.email === "shop@gmail.com") {
+              navigate("/shop-page");
+            } else {
+              navigate("/user-page");
+            }
+        
+      
+        
     } catch (error: any) {
       notification.error({
         message: "Login Failed",
@@ -102,6 +108,7 @@ const FormSignIn = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="relative">
