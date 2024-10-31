@@ -12,10 +12,12 @@ const { Option } = Select;
 
 interface Ticket {
   id?: number;
+  name: string; // Tên vé
+  text: string; // Nội dung tin nhắn
+  pondName: string; // Tên hồ
+  fishName: string; // Tên cá
   pondID: number;
   fishID: number;
-  title: string; // Tiêu đề của vé
-  message: string; // Nội dung tin nhắn
 }
 
 interface Pond {
@@ -36,8 +38,8 @@ const UserTicket: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
   const [ponds, setPonds] = useState<Pond[]>([]);
-  const [fishs, setFishs] = useState<Fish[]>([]); // Danh sách cá
-  const [filteredFish, setFilteredFish] = useState<Fish[]>([]); // Danh sách cá đã lọc
+  const [fishs, setFishs] = useState<Fish[]>([]);
+  const [filteredFish, setFilteredFish] = useState<Fish[]>([]);
 
   useEffect(() => {
     fetchUserPonds();
@@ -49,7 +51,11 @@ const UserTicket: React.FC = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ticket/get-ticket-by-account')
       .then((response) => {
         console.log("Tickets Response:", response.data);
-        setTicketList(response.data.ticket || []);
+        setTicketList(response.data || []);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch tickets:", error);
+        message.error("Failed to load tickets. Please try again.");
       });
   };
 
@@ -57,6 +63,10 @@ const UserTicket: React.FC = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
       .then((response) => {
         setPonds(response.data);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch ponds:", error);
+        message.error("Failed to load ponds. Please try again.");
       });
   };
 
@@ -64,44 +74,49 @@ const UserTicket: React.FC = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-koi-fish-by-account')
       .then((response) => {
         setFishs(response.data);
-        setFilteredFish(response.data); // Gán cá ban đầu vào danh sách cá đã lọc
+        setFilteredFish(response.data);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch fish:", error);
+        message.error("Failed to load fish. Please try again.");
       });
   };
 
   const handlePondChange = (pondID: number) => {
-    // Lọc cá dựa trên hồ đã chọn
     const availableFish = fishs.filter(fish => fish.pondID === pondID);
     setFilteredFish(availableFish);
-    form.setFieldsValue({ fishID: undefined }); // Reset cá khi hồ thay đổi
+    form.setFieldsValue({ fishID: undefined });
   };
 
   const handleCreateTicket = (values: Ticket) => {
     setLoading(true);
     axiosInstance
       .post(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ticket/create-ticket/${values.pondID}/${values.fishID}`, {
-        title: values.title,
-        message: values.message,
+        name: values.name,
+        text: values.text,
       })
       .then(() => {
         message.success("Ticket created successfully!");
-        fetchTickets(); // Cập nhật danh sách vé sau khi tạo mới
+        fetchTickets(); 
         setIsModalVisible(false);
         form.resetFields();
       })
-      .catch(() => {
-        message.error("Failed to create ticket. Please try again.");
+      .catch((error) => {
+        console.error("Failed to create ticket:", error.response ? error.response.data : error.message);
+        message.error("Failed to create ticket. Please check your data and try again.");
       })
       .finally(() => {
         setLoading(false);
       });
-  };
+}
+
 
   const handleDeleteTicket = (ticketID: number) => {
     axiosInstance
       .delete(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ticket/delete-ticket/${ticketID}`)
       .then(() => {
         message.success("Ticket deleted successfully!");
-        fetchTickets(); // Cập nhật danh sách vé sau khi xóa
+        fetchTickets();
       })
       .catch(() => {
         message.error("Failed to delete ticket. Please try again.");
@@ -110,14 +125,24 @@ const UserTicket: React.FC = () => {
 
   const columns = [
     {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
-      title: 'Message',
-      dataIndex: 'message',
-      key: 'message',
+      title: 'Text',
+      dataIndex: 'text',
+      key: 'text',
+    },
+    {
+      title: 'Pond',
+      dataIndex: 'pondName',
+      key: 'pondName',
+    },
+    {
+      title: 'Fish',
+      dataIndex: 'fishName',
+      key: 'fishName',
     },
     {
       title: 'Actions',
@@ -169,16 +194,16 @@ const UserTicket: React.FC = () => {
             >
               <Form layout="vertical" onFinish={handleCreateTicket} form={form}>
                 <Form.Item
-                  label="Title"
-                  name="title"
-                  rules={[{ required: true, message: "Please input the ticket title!" }]}
+                  label="Name"
+                  name="name"
+                  rules={[{ required: true, message: "Please input the ticket name!" }]}
                 >
                   <Input />
                 </Form.Item>
                 <Form.Item
-                  label="Message"
-                  name="message"
-                  rules={[{ required: true, message: "Please input the message!" }]}
+                  label="Text"
+                  name="text"
+                  rules={[{ required: true, message: "Please input the text!" }]}
                 >
                   <Input.TextArea />
                 </Form.Item>
