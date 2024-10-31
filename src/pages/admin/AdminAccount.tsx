@@ -22,17 +22,27 @@ interface User {
 const AdminAccount: React.FC = () => {
   const { collapsed } = useSider();
   const [accounts, setAccounts] = useState<User[]>([]);
+  const [filteredAccounts, setFilteredAccounts] = useState<User[]>([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentAccount, setCurrentAccount] = useState<User | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     fetchAccounts();
   }, []);
 
+  useEffect(() => {
+    // Filter accounts based on search term
+    setFilteredAccounts(
+      accounts.filter(account => account.email.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [searchTerm, accounts]);
+
   const fetchAccounts = async () => {
     try {
       const response = await axiosInstance.get('/account/get-all-account');
       setAccounts(response.data);
+      setFilteredAccounts(response.data); // Initialize filtered list
     } catch (error) {
       message.error("Failed to fetch accounts");
     }
@@ -145,7 +155,13 @@ const AdminAccount: React.FC = () => {
         </Sider>
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
-            <Table dataSource={accounts} columns={columns} rowKey="id" />
+            <Input.Search
+              placeholder="Search by email"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{ marginBottom: 16, width: 300 }}
+            />
+            <Table dataSource={filteredAccounts} columns={columns} rowKey="id" />
             <Modal
               title="Edit Account"
               visible={isModalVisible}
@@ -178,7 +194,6 @@ const AdminAccount: React.FC = () => {
                 <Form.Item name="role" label="Role">
                   <Select>
                     <Select.Option value="ADMIN">Admin</Select.Option>
-                    <Select.Option value="SHOP">shop</Select.Option>
                     <Select.Option value="USER">User</Select.Option>
                   </Select>
                 </Form.Item>
@@ -190,7 +205,7 @@ const AdminAccount: React.FC = () => {
                 </Form.Item>
               </Form>
             </Modal>
-          
+
           <Footer className="footer">
             <AppFooter />
           </Footer>
