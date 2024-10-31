@@ -21,7 +21,7 @@ const FormSignUp = () => {
 
     try {
       setLoading(true);
-      const user = await registerUser(userData);
+      await registerUser(userData);
       notification.success({
         message: "Registration Successful",
         description: "You have successfully registered!",

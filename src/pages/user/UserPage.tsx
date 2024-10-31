@@ -33,7 +33,7 @@ const UserPage = () => {
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
           <section>
-        <h1 className="text-xl font-bold">Instructor Dashboard</h1>
+        <h1 className="text-xl font-bold">Dashboard</h1>
         <UserOverview />
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="text-center w-full h-96 md:h-400 lg:h-500">

@@ -38,7 +38,7 @@ const FishManagement: React.FC = () => {
   const [filteredFishList, setFilteredFishList] = useState<Fish[]>([]); // State cho danh sách cá đã lọc
   const [ponds, setPonds] = useState<Pond[]>([]);
   const [editingFish, setEditingFish] = useState<Fish | null>(null);
-  const [searchTerm, setSearchTerm] = useState(""); // State cho từ khóa tìm kiếm
+  const [, setSearchTerm] = useState(""); // State cho từ khóa tìm kiếm
   const [form] = Form.useForm(); // Tạo form sử dụng antd
 
   useEffect(() => {

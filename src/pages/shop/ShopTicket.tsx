@@ -43,7 +43,7 @@ const ShopTicket: React.FC = () => {
   const [fishs, setFishs] = useState<Fish[]>([]);
   const [filteredFish, setFilteredFish] = useState<Fish[]>([]);
   const [editingTicket, setEditingTicket] = useState<Ticket | null>(null); // Ticket đang chỉnh sửa
-  const [isProcessed, setIsProcessed] = useState<boolean>(false); // State for processed tickets
+  const [isProcessed, ] = useState<boolean>(false); // State for processed tickets
 
   useEffect(() => {
     fetchUserPonds();
