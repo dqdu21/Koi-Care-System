@@ -102,7 +102,7 @@ const UserPonds: React.FC = () => {
       const apiUrl = editingPond
         ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
         : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
-
+  
       setLoading(true);
       const method = editingPond ? 'put' : 'post';
       const response = await axiosInstance[method](apiUrl, {
@@ -110,28 +110,29 @@ const UserPonds: React.FC = () => {
         size: Number(values.size),
         height: Number(values.height),
       });
-
+  
       message.success(editingPond ? "Pond updated successfully!" : "Pond created successfully!");
-      setPonds((prevPonds) =>
-        editingPond
-          ? prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
-          : [...prevPonds, response.data]
-      );
-      setFilteredPonds((prevPonds) =>
-        editingPond
-          ? prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
-          : [...prevPonds, response.data]
-      );
-
+  
+      const updatedPond = response.data;
+      const updatedPonds = editingPond
+        ? ponds.map((pond) => (pond.id === editingPond.id ? updatedPond : pond))
+        : [...ponds, updatedPond];
+  
+      setPonds(updatedPonds);
+      setFilteredPonds(updatedPonds);
+  
+      // Reset modal form and close modal
       form.resetFields();
       setIsModalVisible(false);
       setEditingPond(null);
     } catch (error) {
+      console.error("Error creating/updating pond:", error);
       message.error(editingPond ? "Failed to update pond!" : "Failed to create pond!");
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleDeletePond = async (pondId?: number) => {
     if (!pondId) return;

@@ -13,32 +13,45 @@ interface Pond {
   namePond: string;
   fishname: string;
   image: string;
-  size: string;
+  size: number;
+  height: number;
 }
+
 
 const UserPonds: React.FC = () => {
   const { collapsed } = useSider();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [ponds, setPonds] = useState<Pond[]>([]);
-  const [editingPond, setEditingPond] = useState<Pond | null>(null); // For editing
+  const [filteredPonds, setFilteredPonds] = useState<Pond[]>([]);
+  const [editingPond, setEditingPond] = useState<Pond | null>(null);
+  const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
 
   // Fetch ponds data from API when component mounts
   useEffect(() => {
-    const fetchPonds = () => {
-      axiosInstance
-        .get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/get-all-ponds")
-        .then((response) => {
-          setPonds(response.data); // Set ponds state with API data
-        })
-        .catch(() => {
-          message.error("Failed to fetch ponds!");
-        });
+    const fetchPonds = async () => {
+      try {
+        const response = await axiosInstance.get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/get-all-ponds");
+        setPonds(response.data);
+        setFilteredPonds(response.data);
+      } catch (error) {
+        console.error("Error fetching ponds:", error);
+      }
     };
+    fetchPonds();
+  }, []);
 
-    fetchPonds(); // Call the function to fetch ponds
-  }, []); // Empty dependency array to ensure this runs once on mount
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchText(value);
+
+    // Filter ponds based on search input
+    const filteredData = ponds.filter((pond) =>
+      pond.namePond.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredPonds(filteredData);
+  };
 
   const columns = [
     {
@@ -50,7 +63,7 @@ const UserPonds: React.FC = () => {
       title: "Fish Names",
       dataIndex: "fishname",
       key: "fishname",
-      render: (fishname: string[]) => fishname.join(", "), // Join fish names into a string
+      render: (fishname: string[]) => fishname.join(", "),
     },
     {
       title: "Image",
@@ -61,8 +74,14 @@ const UserPonds: React.FC = () => {
     {
       title: "Size (m²)",
       dataIndex: "pondSize",
-      key: "pondSize", // Use pondSize instead of size
-      render: (size: number) => `${size} m²`, // Display with the unit
+      key: "pondSize",
+      render: (pondSize: number) => `${pondSize} m²`,
+    },
+    {
+      title: "Volume (m³)",
+      dataIndex: "volume",
+      key: "volume",
+      render: (volume: number) => `${volume} m³`,
     },
     {
       title: "Actions",
@@ -79,55 +98,68 @@ const UserPonds: React.FC = () => {
       ),
     },
   ];
-  const handleCreatePond = (values: Pond) => {
-    setLoading(true);
-    const apiUrl = editingPond
-      ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
-      : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
 
-    axiosInstance
-      .post(apiUrl, values)
-      .then((response) => {
-        message.success(editingPond ? "Pond updated successfully!" : "Pond created successfully!");
-
-        if (editingPond) {
-          setPonds((prevPonds) =>
-            prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
-          );
-        } else {
-          setPonds([...ponds, response.data]);
-        }
-
-        setIsModalVisible(false);
-        setEditingPond(null);
-        form.resetFields();
-      })
-      .catch(() => {
-        message.error(editingPond ? "Failed to update pond!" : "Failed to create pond!");
-      })
-      .finally(() => {
-        setLoading(false);
+  const handleCreatePond = async (values: Pond) => {
+    try {
+      const apiUrl = editingPond
+        ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
+        : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
+  
+      setLoading(true);
+      const method = editingPond ? 'put' : 'post';
+      const response = await axiosInstance[method](apiUrl, {
+        ...values,
+        size: Number(values.size),
+        height: Number(values.height),
       });
+  
+      message.success(editingPond ? "Pond updated successfully!" : "Pond created successfully!");
+  
+      const updatedPond = response.data;
+      const updatedPonds = editingPond
+        ? ponds.map((pond) => (pond.id === editingPond.id ? updatedPond : pond))
+        : [...ponds, updatedPond];
+  
+      setPonds(updatedPonds);
+      setFilteredPonds(updatedPonds);
+  
+      // Reset modal form and close modal
+      form.resetFields();
+      setIsModalVisible(false);
+      setEditingPond(null);
+    } catch (error) {
+      console.error("Error creating/updating pond:", error);
+      message.error(editingPond ? "Failed to update pond!" : "Failed to create pond!");
+    } finally {
+      setLoading(false);
+    }
   };
+  
 
-  const handleDeletePond = (pondId?: number) => {
+  const handleDeletePond = async (pondId?: number) => {
     if (!pondId) return;
-    axiosInstance
-      .delete(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/delete-pond/${pondId}`)
-      .then(() => {
-        message.success("Pond deleted successfully!");
-        setPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
-      })
-      .catch(() => {
-        message.error("Failed to delete pond!");
-      });
+    try {
+      await axiosInstance.delete(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/delete-pond/${pondId}`);
+      message.success("Pond deleted successfully!");
+      setPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
+      setFilteredPonds((prevPonds) => prevPonds.filter((pond) => pond.id !== pondId));
+    } catch (error) {
+      console.error("Error deleting pond:", error);
+      message.error("Failed to delete pond!");
+    }
   };
 
   const handleEditPond = (pond: Pond) => {
     setEditingPond(pond);
-    form.setFieldsValue(pond);
+    form.setFieldsValue({
+      namePond: pond.namePond,
+      image: pond.image,
+      size: pond.size,
+      height: pond.height,
+    });
     setIsModalVisible(true);
   };
+
 
   return (
     <Layout className="flex h-screen w-screen flex-col">
@@ -148,10 +180,19 @@ const UserPonds: React.FC = () => {
         </Sider>
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
-            
+          <Input
+              placeholder="Search by pond name"
+              value={searchText}
+              onChange={handleSearch}
+              style={{ marginBottom: 16, width: 300 }}
+            />
+
+            <Button type="primary" onClick={() => setIsModalVisible(true)}>
+              Create Pond
+            </Button>
 
             <Table<Pond>
-              dataSource={ponds}
+              dataSource={filteredPonds}
               columns={columns}
               rowKey="id"
               className="mt-4"
@@ -185,7 +226,14 @@ const UserPonds: React.FC = () => {
                 <Form.Item
                   label="Size (m²)"
                   name="size"
-                  rules={[{ required: true, message: "Please input the size!" }]}
+                  rules={[{ required: true, message: "Please input the pond size!" }]}
+                >
+                  <InputNumber min={0} className="w-full" />
+                </Form.Item>
+                <Form.Item
+                  label="Height (m)"
+                  name="height"
+                  rules={[{ required: true, message: "Please input the pond volume!" }]}
                 >
                   <InputNumber min={0} className="w-full" />
                 </Form.Item>

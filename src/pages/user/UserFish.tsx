@@ -36,6 +36,7 @@ const FishManagement: React.FC = () => {
   const [fishList, setFishList] = useState<Fish[]>([]);
   const [ponds, setPonds] = useState<Pond[]>([]);
   const [editingFish, setEditingFish] = useState<Fish | null>(null);
+  const [form] = Form.useForm(); // Tạo form sử dụng antd
 
   useEffect(() => {
     fetchFish();
@@ -58,55 +59,76 @@ const FishManagement: React.FC = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-koi-fish-by-account')
       .then((response) => {
         setFishList(response.data);
-      })
+      });
   };
 
   const fetchUserPonds = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
       .then((response) => {
         setPonds(response.data);
-      })
-      
+      });
   };
 
-  const handleCreateFish = (values: Fish & { pondId: number }) => {
+  const handleSaveFish = (values: Fish & { pondId: number }) => {
     setLoading(true);
   
-    // Construct the URL using the pond ID
     const { pondId, fishName, imageFish, birthDay, species, size, weigh, gender, origin, healthyStatus, note } = values;
   
     const fishData: Fish = {
-      id: 0, // Temporary ID
-      fishName: fishName,
-      imageFish: imageFish,
-      birthDay: birthDay,
-      species: species,
-      size: size,
-      weigh: weigh,
-      gender: gender,
-      origin: origin,
-      healthyStatus: healthyStatus,
-      note: note || "", // Ensure note is an empty string if not provided
+      fishName,
+      imageFish,
+      birthDay,
+      species,
+      size,
+      weigh,
+      gender,
+      origin,
+      healthyStatus,
+      note: note || "",
       pondID: pondId,
     };
-  
-    // Constructing the URL for the POST request
-    const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
-  
-    axiosInstance.post(url, fishData)
-      .then((response) => {
-        message.success("Fish created successfully!");
-        setFishList((prev) => [...prev, response.data]);
-        setIsModalVisible(false); // Close modal on success
-      })
-      .catch(() => {
-        message.error("Failed to create fish. Please check your input and try again.");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+
+    if (editingFish) {
+      // Nếu có `editingFish`, gọi API cập nhật
+      const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/update-fish/${editingFish.id}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
+      axiosInstance.put(url, fishData)
+        .then(() => {
+          message.success("Fish updated successfully!");
+          fetchFish(); // Làm mới danh sách cá
+          setIsModalVisible(false);
+          setEditingFish(null); // Xóa trạng thái đang chỉnh sửa
+        })
+        .catch(() => {
+          message.error("Failed to update fish. Please try again.");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      // Nếu không có `editingFish`, gọi API tạo mới
+      const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
+      axiosInstance.post(url, fishData)
+        .then((response) => {
+          message.success("Fish created successfully!");
+          setFishList((prev) => [...prev, response.data]);
+          setIsModalVisible(false); // Đóng modal khi tạo thành công
+          form.resetFields(); // Reset form để chuẩn bị cho lần tạo tiếp theo
+        })
+        .catch(() => {
+          message.error("Failed to create fish. Please check your input and try again.");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
   };
-  
+
+  // Mở modal chỉnh sửa cá và đổ dữ liệu vào form
+  const openEditFishModal = (fish: Fish) => {
+    setEditingFish(fish);
+    form.setFieldsValue({ ...fish, pondId: fish.pondID }); // Đổ dữ liệu cá vào form
+    setIsModalVisible(true);
+  };
 
   const columns = [
     {
@@ -121,7 +143,7 @@ const FishManagement: React.FC = () => {
       render: (text: string) => <img src={text} alt="Fish" style={{ width: 50, height: 50 }} />,
     },
     {
-      title: 'birthDay',
+      title: 'Birth Day',
       dataIndex: 'birthDay',
       key: 'birthDay',
     },
@@ -165,7 +187,7 @@ const FishManagement: React.FC = () => {
       key: 'actions',
       render: (text: string, record: Fish) => (
         <>
-          <Button type="link" onClick={() => { setEditingFish(record); setIsModalVisible(true); }}>
+          <Button type="link" onClick={() => openEditFishModal(record)}>
             Update
           </Button>
           <Button type="link" danger onClick={() => handleDeleteFish(record.id!)}>
@@ -207,8 +229,8 @@ const FishManagement: React.FC = () => {
               onCancel={() => { setIsModalVisible(false); setEditingFish(null); }}
               footer={null}
             >
-              <Form layout="vertical" onFinish={handleCreateFish}>
-                 <Form.Item
+              <Form layout="vertical" onFinish={handleSaveFish} form={form}>
+                <Form.Item
                   label="Select Pond"
                   name="pondId"
                   rules={[{ required: true, message: "Please select a pond!" }]}
@@ -236,11 +258,11 @@ const FishManagement: React.FC = () => {
                   <Input />
                 </Form.Item>
                 <Form.Item
-                  label="birthDay"
+                  label="Birth Day"
                   name="birthDay"
-                  rules={[{ required: true, message: "Please input the age!" }]}
+                  rules={[{ required: true, message: "Please input the birth day!" }]}
                 >
-                  <InputNumber min={0} className="w-full" />
+                  <Input />
                 </Form.Item>
                 <Form.Item
                   label="Species"
@@ -311,21 +333,16 @@ const FishManagement: React.FC = () => {
                 </Form.Item>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" loading={loading}>
-                    Submit
-                  </Button>
-                </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" loading={loading}>
                     {editingFish ? "Update Fish" : "Create Fish"}
                   </Button>
                 </Form.Item>
               </Form>
             </Modal>
           
-          <Footer className="bg-black">
+          <Footer className="footer">
             <AppFooter />
           </Footer>
-          </Content>
+          </Content>  
         </Layout>
       </Layout>
     </Layout>
