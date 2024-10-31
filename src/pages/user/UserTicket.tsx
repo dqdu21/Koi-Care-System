@@ -54,10 +54,6 @@ const UserTicket: React.FC = () => {
       .then((response) => {
         console.log("Tickets Response:", response.data);
         setTicketList(response.data || []);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch tickets:", error);
-        message.error("Failed to load tickets. Please try again.");
       });
   };
 
@@ -65,10 +61,6 @@ const UserTicket: React.FC = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
       .then((response) => {
         setPonds(response.data);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch ponds:", error);
-        message.error("Failed to load ponds. Please try again.");
       });
   };
 
@@ -77,10 +69,6 @@ const UserTicket: React.FC = () => {
       .then((response) => {
         setFishs(response.data);
         setFilteredFish(response.data);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch fish:", error);
-        message.error("Failed to load fish. Please try again.");
       });
   };
 

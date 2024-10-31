@@ -17,46 +17,28 @@ const SiderAdmin: React.FC<{ className?: string }> = () => {
 
   const menuItems: MenuProps["items"] = [
     {
-      key: "1",
+      key: "8",
       icon: <AppstoreOutlined />,
       label: "Dashboard",
       onClick: () => navigate("/shop-page"),
     },
     {
-      key: "2",
+      key: "9",
       icon: <ReadOutlined />,
       label: "Products",
       onClick: () => navigate("/shop-item"),
     },
     {
-      key: "3",
+      key: "10",
       icon: <ExceptionOutlined />,
       label: "Ticket",
       onClick: () => navigate("/shop-ticket"),
-    },
+    },  
     {
-      key: "4",
-      icon: <BarChartOutlined />,
-      label: "Ponds",
-      onClick: () => navigate("/pond"),
-    },
-    {
-      key: "5",
-      icon: <StarOutlined />,
-      label: "Reviews",
-      onClick: () => navigate("/shop-reviews"),
-    },
-    {
-      key: "6",
-      icon: <DollarOutlined />,
-      label: "Purchase",
-      onClick: () => navigate("/shop-purchase"),
-    },
-    {
-      key: "7",
+      key: "11",
       icon: <WalletOutlined />,
-      label: "Payout",
-      onClick: () => navigate("/shop-payout"),
+      label: "Profile",
+      onClick: () => navigate("/profile"),
       className: "hover:bg-amber-500 hover:text-white",
     },
   ];

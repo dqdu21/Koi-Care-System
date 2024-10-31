@@ -8,13 +8,14 @@ import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
 import SiderAdmin from "../../components/layout/SiderShop";
+import { formatDate } from "../../utils/formatDate";
 
 // Define the type for a Fish
 interface Fish {
   id?: number;
   fishName: string;
   imageFish: string;
-  age: number;
+  birthDay: string;
   species: string;
   size: number;
   weigh: number;
@@ -35,20 +36,34 @@ const FishManagement: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fishList, setFishList] = useState<Fish[]>([]);
+  const [filteredFishList, setFilteredFishList] = useState<Fish[]>([]); // State cho danh sách cá đã lọc
   const [ponds, setPonds] = useState<Pond[]>([]);
+  const [editingFish, setEditingFish] = useState<Fish | null>(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State cho từ khóa tìm kiếm
+  const [form] = Form.useForm(); // Tạo form sử dụng antd
 
   useEffect(() => {
     fetchFish();
     fetchUserPonds();
   }, []);
 
+  const handleDeleteFish = (fishId: number) => {
+    const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/delete-fish/${fishId}`;
+    axiosInstance.delete(url)
+      .then(() => {
+        message.success("Fish deleted successfully!");
+        setFishList((prev) => prev.filter(fish => fish.id !== fishId));
+      })
+      .catch(() => {
+        message.error("Failed to delete fish. Please try again.");
+      });
+  };
+
   const fetchFish = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-all-fish')
       .then((response) => {
         setFishList(response.data);
-      })
-      .catch(() => {
-        message.error("Failed to fetch fish data. Please try again later.");
+        setFilteredFishList(response.data); // Cập nhật danh sách cá đã lọc ban đầu
       });
   };
 
@@ -56,50 +71,82 @@ const FishManagement: React.FC = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
       .then((response) => {
         setPonds(response.data);
-      })
-      .catch(() => {
-        message.error("Failed to fetch ponds. Please try again later.");
       });
   };
 
-  const handleCreateFish = (values: Fish & { pondId: number }) => {
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    if (value) {
+      const filteredList = fishList.filter(fish =>
+        fish.fishName.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredFishList(filteredList);
+    } else {
+      setFilteredFishList(fishList); // Nếu không có từ khóa, hiển thị lại toàn bộ danh sách
+    }
+  };
+
+  const handleSaveFish = (values: Fish & { pondId: number }) => {
     setLoading(true);
   
-    // Construct the URL using the pond ID
-    const { pondId, fishName, imageFish, age, species, size, weigh, gender, origin, healthyStatus, note } = values;
+    const { pondId, fishName, imageFish, birthDay, species, size, weigh, gender, origin, healthyStatus, note } = values;
   
     const fishData: Fish = {
-      id: 0, // Temporary ID
-      fishName: fishName,
-      imageFish: imageFish,
-      age: age,
-      species: species,
-      size: size,
-      weigh: weigh,
-      gender: gender,
-      origin: origin,
-      healthyStatus: healthyStatus,
-      note: note || "", // Ensure note is an empty string if not provided
+      fishName,
+      imageFish,
+      birthDay,
+      species,
+      size,
+      weigh,
+      gender,
+      origin,
+      healthyStatus,
+      note: note || "",
       pondID: pondId,
     };
-  
-    // Constructing the URL for the POST request
-    const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
-  
-    axiosInstance.post(url, fishData)
-      .then((response) => {
-        message.success("Fish created successfully!");
-        setFishList((prev) => [...prev, response.data]);
-        setIsModalVisible(false); // Close modal on success
-      })
-      .catch(() => {
-        message.error("Failed to create fish. Please check your input and try again.");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+
+    if (editingFish) {
+      // Nếu có `editingFish`, gọi API cập nhật
+      const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/update-fish/${editingFish.id}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
+      axiosInstance.put(url, fishData)
+        .then(() => {
+          message.success("Fish updated successfully!");
+          fetchFish(); // Làm mới danh sách cá
+          setIsModalVisible(false);
+          setEditingFish(null); // Xóa trạng thái đang chỉnh sửa
+        })
+        .catch(() => {
+          message.error("Failed to update fish. Please try again.");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      // Nếu không có `editingFish`, gọi API tạo mới
+      const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
+      axiosInstance.post(url, fishData)
+        .then((response) => {
+          message.success("Fish created successfully!");
+          setFishList((prev) => [...prev, response.data]);
+          setFilteredFishList((prev) => [...prev, response.data]); // Cập nhật danh sách đã lọc
+          setIsModalVisible(false); // Đóng modal khi tạo thành công
+          form.resetFields(); // Reset form để chuẩn bị cho lần tạo tiếp theo
+        })
+        .catch(() => {
+          message.error("Failed to create fish. Please check your input and try again.");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
   };
-  
+
+  // Mở modal chỉnh sửa cá và đổ dữ liệu vào form
+  const openEditFishModal = (fish: Fish) => {
+    setEditingFish(fish);
+    form.setFieldsValue({ ...fish, pondId: fish.pondID }); // Đổ dữ liệu cá vào form
+    setIsModalVisible(true);
+  };
 
   const columns = [
     {
@@ -114,9 +161,10 @@ const FishManagement: React.FC = () => {
       render: (text: string) => <img src={text} alt="Fish" style={{ width: 50, height: 50 }} />,
     },
     {
-      title: 'Age',
-      dataIndex: 'age',
-      key: 'age',
+      title: 'Birth Day',
+      dataIndex: 'birthDay',
+      key: 'birthDay',
+      render: (text: string) => formatDate(text),
     },
     {
       title: 'Species',
@@ -153,6 +201,20 @@ const FishManagement: React.FC = () => {
       dataIndex: 'note',
       key: 'note',
     },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (text: string, record: Fish) => (
+        <>
+          <Button type="link" onClick={() => openEditFishModal(record)}>
+            Update
+          </Button>
+          <Button type="link" danger onClick={() => handleDeleteFish(record.id!)} >
+            Delete
+          </Button>
+        </>
+      ),
+    },
   ];
 
   return (
@@ -174,16 +236,25 @@ const FishManagement: React.FC = () => {
         </Sider>
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
+          <Input.Search
+              placeholder="Search fish by name"
+              onSearch={handleSearch}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ marginBottom: 16 }}
+            />
+            <Button type="primary" onClick={() => setIsModalVisible(true)}>
+              Create Fish
+            </Button>
             
-            <Table<Fish> dataSource={fishList} columns={columns} rowKey="id" className="mt-4" />
+            <Table<Fish> dataSource={filteredFishList} columns={columns} rowKey="id" className="mt-4" />
 
             <Modal
-              title="Create Fish"
+              title={editingFish ? "Update Fish" : "Create Fish"}
               visible={isModalVisible}
-              onCancel={() => setIsModalVisible(false)}
+              onCancel={() => { setIsModalVisible(false); setEditingFish(null); }}
               footer={null}
             >
-              <Form layout="vertical" onFinish={handleCreateFish}>
+              <Form layout="vertical" onFinish={handleSaveFish} form={form}>
                 <Form.Item
                   label="Select Pond"
                   name="pondId"
@@ -212,11 +283,11 @@ const FishManagement: React.FC = () => {
                   <Input />
                 </Form.Item>
                 <Form.Item
-                  label="Age"
-                  name="age"
-                  rules={[{ required: true, message: "Please input the age!" }]}
+                  label="Birth Day"
+                  name="birthDay"
+                  rules={[{ required: true, message: "Please input the birth day!" }]}
                 >
-                  <InputNumber min={0} className="w-full" />
+                  <Input />
                 </Form.Item>
                 <Form.Item
                   label="Species"
@@ -287,7 +358,7 @@ const FishManagement: React.FC = () => {
                 </Form.Item>
                 <Form.Item>
                   <Button type="primary" htmlType="submit" loading={loading}>
-                    Submit
+                    {editingFish ? "Update Fish" : "Create Fish"}
                   </Button>
                 </Form.Item>
               </Form>

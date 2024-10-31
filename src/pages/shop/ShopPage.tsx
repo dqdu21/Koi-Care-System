@@ -6,9 +6,10 @@ import { useSider } from "../../app/context/SiderProvider";
 import AppFooter from "../../components/layout/AppFooter";
 import SiderShop from "../../components/layout/SiderShop";
 import AppHeader from "../../components/layout/AppHeader";
-import InstructorOverview from "./../InstructorOverview";
+import InstructorOverview from "../UserOverview";
 import InstructorPie from "./../InstructorPie";
 import InstructorChart from "./../InstructorChart";
+import Overview from "../Overview";
 
 const ShopPage = () => {
   const { collapsed } = useSider();
@@ -34,7 +35,7 @@ const ShopPage = () => {
           <Content className="flex-1 overflow-y-auto">
           <section>
         <h1 className="text-xl font-bold">Instructor Dashboard</h1>
-        <InstructorOverview />
+        <Overview />
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="text-center w-full h-96 md:h-400 lg:h-500">
             <InstructorChart />

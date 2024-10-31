@@ -43,8 +43,8 @@ const SiderInstructor: React.FC<{ className?: string }> = () => {
     {
       key: "5",
       icon: <WalletOutlined />,
-      label: "Account",
-      onClick: () => navigate("/account"),
+      label: "Profile",
+      onClick: () => navigate("/profile"),
       className: "hover:bg-amber-500 hover:text-white",
     },
   ];
