@@ -85,19 +85,26 @@ const UserPonds: React.FC = () => {
 
   const handleCreatePond = async (values: Pond) => {
     try {
+      // Define the API URL based on whether we're editing or creating a pond
       const apiUrl = editingPond
         ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
         : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
   
+      // Set loading state before the API call
+      setLoading(true);
   
-      const response = await axiosInstance.post(apiUrl, {
+      // Use PUT for updating, POST for creating
+      const method = editingPond ? 'put' : 'post';
+  
+      // Make the API request
+      const response = await axiosInstance[method](apiUrl, {
         ...values,
-        size: Number(values.size), // Ensure pondSize is sent as a number
-        height: Number(values.height)       // Ensure volume is sent as a number
+        size: Number(values.size), // Ensure size is sent as a number
+        height: Number(values.height), // Ensure height is sent as a number
       });
   
       message.success(editingPond ? "Pond updated successfully!" : "Pond created successfully!");
-
+  
       setPonds((prevPonds) =>
         editingPond
           ? prevPonds.map((pond) => (pond.id === editingPond.id ? response.data : pond))
@@ -110,8 +117,6 @@ const UserPonds: React.FC = () => {
       setEditingPond(null);
     } catch (error) {
       message.error(editingPond ? "Failed to update pond!" : "Failed to create pond!");
-    } finally {
-      setLoading(false);
     }
   };
   
