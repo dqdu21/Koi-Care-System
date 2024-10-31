@@ -14,6 +14,8 @@ import Shopping from '../pages/shop/Shopping';
 import UserTicket from '../pages/user/UserTicket';
 import ShopTicket from '../pages/shop/ShopTicket';
 import Profile from '../pages/Profile';
+import AdminAccount from '../pages/admin/AdminAccount';
+import AdminTicket from '../pages/admin/AdminTicket';
 
 
 interface ProtectedRouteProps {
@@ -78,11 +80,17 @@ const AppRouter = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="sign-in" element={<SigninPage />} />
         <Route path="sign-up" element={<SignupPage />} />
-        <Route path="user-page" element={<UserPage />} />
         <Route path="profile" element={<Profile />} />
+
+        {/* user */}
+
+        <Route path="user-page" element={<UserPage />} />
         <Route path="pond" element={<UserPonds />} />
         <Route path="ticket" element={<UserTicket />} />
         <Route path="fish" element={<FishManagement />} />
+
+
+
         {/* <Route path="admin-page" element={<ProtectedRoute
                   element={<AdminPage />}
                   allowedRoles={["ADMIN"]}
@@ -90,6 +98,11 @@ const AppRouter = () => {
         <Route path="admin-page" element={<AdminPage />}/>
         <Route path="admin-pond" element={<AdminPonds />} />
         <Route path="admin-fish" element={<AdminFish />} />
+        <Route path="admin-account" element={<AdminAccount />} />
+        <Route path="admin-ticket" element={<AdminTicket />} />
+
+          {/* shop */}
+
         <Route path="shop-page" element={<ShopPage />} />
         <Route path="shop-item" element={<ShopItems />} />
         <Route path="shopping" element={<Shopping />} />

@@ -4,10 +4,9 @@ import { Content, Footer, Header } from "antd/es/layout/layout";
 import { useState, useEffect } from "react";
 import { useSider } from "../../app/context/SiderProvider";
 import AppFooter from "../../components/layout/AppFooter";
-import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
-import SiderAdmin from "../../components/layout/SiderShop";
+import SiderAdmin from "../../components/layout/SiderAdmin";
 import { formatDate } from "../../utils/formatDate";
 
 // Define the type for a Fish
@@ -122,7 +121,6 @@ const FishManagement: React.FC = () => {
           setLoading(false);
         });
     } else {
-      // Nếu không có `editingFish`, gọi API tạo mới
       const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
       axiosInstance.post(url, fishData)
         .then((response) => {

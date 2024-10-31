@@ -43,20 +43,14 @@ const SiderAdmin: React.FC<{ className?: string }> = () => {
     {
       key: "5",
       icon: <StarOutlined />,
-      label: "Reviews",
-      onClick: () => navigate("/admin-reviews"),
-    },
-    {
-      key: "6",
-      icon: <DollarOutlined />,
-      label: "Purchase",
-      onClick: () => navigate("/admin-purchase"),
+      label: "Ticket",
+      onClick: () => navigate("/admin-ticket"),
     },
     {
       key: "7",
       icon: <WalletOutlined />,
-      label: "Payout",
-      onClick: () => navigate("/admin-payout"),
+      label: "Profile",
+      onClick: () => navigate("/profile"),
       className: "hover:bg-amber-500 hover:text-white",
     },
   ];
