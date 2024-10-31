@@ -26,8 +26,11 @@ import { Content, Footer, Header } from 'antd/es/layout/layout';
 import AppHeader from '../components/layout/AppHeader';
 import AppFooter from '../components/layout/AppFooter';
 import AppSider from '../components/layout/AppSider';
+import SiderAdmin from '../components/layout/SiderAdmin'; // Import SiderAdmin
+import SiderShop from '../components/layout/SiderShop'; // Import SiderShop
 import { useSider } from '../app/context/SiderProvider';
 import { axiosInstance } from '../services/axiosInstance';
+import SiderInstructor from '../components/layout/SiderInstructor';
 
 const { Title, Text } = Typography;
 
@@ -71,6 +74,16 @@ const Profile: React.FC = () => {
     return 'Good Evening';
   };
 
+  // Hàm để xác định Sider cần sử dụng
+  const renderSider = () => {
+    if (userProfile?.email === 'ADMIN1@gmail.com') {
+      return <SiderAdmin />;
+    } else if (userProfile?.email === 'shop@gmail.com') {
+      return <SiderShop />;
+    }
+    return <SiderInstructor />;
+  };
+
   return (
     <Layout className="h-screen w-screen flex flex-col">
       <Header className="header">
@@ -78,7 +91,7 @@ const Profile: React.FC = () => {
       </Header>
       <Layout className="flex flex-1">
         <Sider className="sider" collapsed={collapsed} collapsedWidth={0} trigger={null} width={220}>
-          <AppSider className={`transition-all duration-75 ${collapsed ? 'w-0' : 'w-64'}`} />
+          {renderSider()} {/* Gọi hàm để render Sider */}
         </Sider>
         <Layout className="flex flex-col flex-1">
           <Content className="flex-1 overflow-auto p-6 bg-gray-50">
@@ -163,10 +176,8 @@ const Profile: React.FC = () => {
                     <Form.Item
                       label="Email"
                       name="email"
-                      rules={[
-                        { required: true, message: "Please input your email!" },
-                        { type: 'email', message: 'Please enter a valid email!' }
-                      ]}
+                      rules={[{ required: true, message: "Please input your email!" },
+                              { type: 'email', message: 'Please enter a valid email!' }]}
                     >
                       <Input prefix={<MailOutlined />} />
                     </Form.Item>
