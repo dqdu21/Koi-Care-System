@@ -34,8 +34,10 @@ const FishManagement: React.FC = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fishList, setFishList] = useState<Fish[]>([]);
+  const [filteredFishList, setFilteredFishList] = useState<Fish[]>([]); // State cho danh sách cá đã lọc
   const [ponds, setPonds] = useState<Pond[]>([]);
   const [editingFish, setEditingFish] = useState<Fish | null>(null);
+  const [searchTerm, setSearchTerm] = useState(""); // State cho từ khóa tìm kiếm
   const [form] = Form.useForm(); // Tạo form sử dụng antd
 
   useEffect(() => {
@@ -59,6 +61,7 @@ const FishManagement: React.FC = () => {
     axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/get-koi-fish-by-account')
       .then((response) => {
         setFishList(response.data);
+        setFilteredFishList(response.data); // Cập nhật danh sách cá đã lọc ban đầu
       });
   };
 
@@ -67,6 +70,18 @@ const FishManagement: React.FC = () => {
       .then((response) => {
         setPonds(response.data);
       });
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    if (value) {
+      const filteredList = fishList.filter(fish =>
+        fish.fishName.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredFishList(filteredList);
+    } else {
+      setFilteredFishList(fishList); // Nếu không có từ khóa, hiển thị lại toàn bộ danh sách
+    }
   };
 
   const handleSaveFish = (values: Fish & { pondId: number }) => {
@@ -111,6 +126,7 @@ const FishManagement: React.FC = () => {
         .then((response) => {
           message.success("Fish created successfully!");
           setFishList((prev) => [...prev, response.data]);
+          setFilteredFishList((prev) => [...prev, response.data]); // Cập nhật danh sách đã lọc
           setIsModalVisible(false); // Đóng modal khi tạo thành công
           form.resetFields(); // Reset form để chuẩn bị cho lần tạo tiếp theo
         })
@@ -190,7 +206,7 @@ const FishManagement: React.FC = () => {
           <Button type="link" onClick={() => openEditFishModal(record)}>
             Update
           </Button>
-          <Button type="link" danger onClick={() => handleDeleteFish(record.id!)}>
+          <Button type="link" danger onClick={() => handleDeleteFish(record.id!)} >
             Delete
           </Button>
         </>
@@ -217,11 +233,17 @@ const FishManagement: React.FC = () => {
         </Sider>
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
+            <Input.Search
+              placeholder="Search fish by name"
+              onSearch={handleSearch}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ marginBottom: 16 }}
+            />
             <Button type="primary" onClick={() => setIsModalVisible(true)}>
               Create Fish
             </Button>
             
-            <Table<Fish> dataSource={fishList} columns={columns} rowKey="id" className="mt-4" />
+            <Table<Fish> dataSource={filteredFishList} columns={columns} rowKey="id" className="mt-4" />
 
             <Modal
               title={editingFish ? "Update Fish" : "Create Fish"}
