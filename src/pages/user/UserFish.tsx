@@ -7,6 +7,7 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
+import { formatDate } from "../../utils/formatDate";
 
 // Define the type for a Fish
 interface Fish {
@@ -162,6 +163,7 @@ const FishManagement: React.FC = () => {
       title: 'Birth Day',
       dataIndex: 'birthDay',
       key: 'birthDay',
+      render: (text: string) => formatDate(text),
     },
     {
       title: 'Species',
