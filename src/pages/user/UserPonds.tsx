@@ -84,13 +84,11 @@ const UserPonds: React.FC = () => {
   ];
 
   const handleCreatePond = async (values: Pond) => {
-    setLoading(true);
     try {
       const apiUrl = editingPond
         ? `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/update/${editingPond.id}`
         : "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/create-pond";
   
-      console.log("Submitted values:", values);
   
       const response = await axiosInstance.post(apiUrl, {
         ...values,
@@ -111,7 +109,6 @@ const UserPonds: React.FC = () => {
       setIsModalVisible(false);
       setEditingPond(null);
     } catch (error) {
-      console.error("Error creating/updating pond:", error);
       message.error(editingPond ? "Failed to update pond!" : "Failed to create pond!");
     } finally {
       setLoading(false);
