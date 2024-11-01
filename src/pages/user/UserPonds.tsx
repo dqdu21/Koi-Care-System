@@ -7,6 +7,7 @@ import AppFooter from "../../components/layout/AppFooter";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 interface Pond {
   id?: number;
@@ -26,6 +27,7 @@ const UserPonds: React.FC = () => {
   const [editingPond, setEditingPond] = useState<Pond | null>(null);
   const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPonds = async () => {
@@ -56,6 +58,14 @@ const UserPonds: React.FC = () => {
       title: "Pond Name",
       dataIndex: "namePond",
       key: "namePond",
+      render: (text: string, record: Pond) => (
+        <a
+          onClick={() => navigate(`/pond/${record.id}`)}
+          style={{ cursor: "pointer", color: "#1890ff" }}
+        >
+          {text}
+        </a>
+      ),
     },
     {
       title: "Fish Names",
