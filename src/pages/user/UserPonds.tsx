@@ -103,7 +103,7 @@ const UserPonds: React.FC = () => {
       key: "actions",
       render: (record: Pond) => (
         <>
-          <Button onClick={() => handleEditPond(record)} style={{ marginRight: 8 }}>
+          <Button onClick={() => handleEditPond(record)}>
             Update
           </Button>
           <Popconfirm title="Sure to delete?" onConfirm={() => handleDeletePond(record.id)}>

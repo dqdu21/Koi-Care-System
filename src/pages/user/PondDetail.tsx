@@ -9,22 +9,18 @@ import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
 
-interface Fish {
-  name: string;
-  species: string;
-  age: number;
-  weight: number; // in kg
-  image: string;
-}
-
 interface Pond {
   id?: number;
   namePond: string;
-  fishname: Fish[];
-  image: string;
-  size: number;
-  height: number;
-  volume: number; // calculated as size * height
+  fishname: string[];
+  pondSize: number;
+  volume: number;
+  temper: string;
+  salt: string;
+  no3: string;
+  no2: string;
+  ph: string;
+  o2: string;
 }
 
 const PondDetail: React.FC = () => {
@@ -38,22 +34,28 @@ const PondDetail: React.FC = () => {
     const fetchPondDetails = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/pond/view-pond-by-id/${pondID}`);
+        const response = await axiosInstance.get(
+          `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-id/${pondID}`
+        );
+        console.log(response.data); // Check the data structure here
         setPond(response.data);
       } catch (error) {
         console.error("Error fetching pond details:", error);
-        message.error("Failed to fetch pond details.");
+        message.error("Failed to fetch pond details. Please check the console for details.");
       } finally {
         setLoading(false);
       }
     };
-
+  
     if (pondID) {
       fetchPondDetails();
     }
   }, [pondID]);
-
-  if (!pond) return <p>Loading...</p>;
+  
+  // Render conditional loading and error states
+  if (loading) return <p>Loading...</p>;
+  if (!pond) return <p>Error: Unable to load pond details.</p>;
+  
 
   return (
     <Layout className="flex h-screen w-screen flex-col">
@@ -77,11 +79,15 @@ const PondDetail: React.FC = () => {
             </Button>
             <h1>{pond.namePond}</h1>
             <div style={{ display: "flex", alignItems: "center", marginBottom: 24 }}>
-              <img src={pond.image} alt="Pond" style={{ width: 300, height: "auto", marginRight: 24 }} />
               <div>
-                <p><strong>Size:</strong> {pond.size} m²</p>
-                <p><strong>Height:</strong> {pond.height} m</p>
+                <p><strong>Size:</strong> {pond.pondSize} m²</p>
                 <p><strong>Volume:</strong> {pond.volume} m³</p>
+                <p><strong>Temperature:</strong> {pond.temper} °C</p>
+                <p><strong>Salt:</strong> {pond.salt} %</p>
+                <p><strong>NO3:</strong> {pond.no3} ppm</p>
+                <p><strong>NO2:</strong> {pond.no2} ppm</p>
+                <p><strong>pH:</strong> {pond.ph}</p>
+                <p><strong>Oxygen (O2):</strong> {pond.o2} mg/L</p>
               </div>
             </div>
 
@@ -89,13 +95,7 @@ const PondDetail: React.FC = () => {
             <div>
               {pond.fishname.length ? (
                 pond.fishname.map((fish, index) => (
-                  <div key={index} style={{ marginBottom: 16, borderBottom: "1px solid #ddd", paddingBottom: 16 }}>
-                    <h3>{fish.name}</h3>
-                    <img src={fish.image} alt={fish.name} style={{ width: 200, height: "auto", marginBottom: 8 }} />
-                    <p><strong>Species:</strong> {fish.species}</p>
-                    <p><strong>Age:</strong> {fish.age} years</p>
-                    <p><strong>Weight:</strong> {fish.weight} kg</p>
-                  </div>
+                  <p key={index}>{fish}</p>
                 ))
               ) : (
                 <p>No fish found in this pond.</p>

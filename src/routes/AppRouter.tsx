@@ -17,6 +17,7 @@ import Profile from '../pages/Profile';
 import AdminAccount from '../pages/admin/AdminAccount';
 import AdminTicket from '../pages/admin/AdminTicket';
 import PondDetail from '../pages/user/PondDetail';
+import FishDetail from '../pages/user/FishDetail';
 
 
 // interface ProtectedRouteProps {
@@ -89,7 +90,8 @@ const AppRouter = () => {
         <Route path="pond" element={<UserPonds />} />
         <Route path="ticket" element={<UserTicket />} />
         <Route path="fish" element={<FishManagement />} />
-        <Route path="pond/:id" element={<PondDetail/>} />
+        <Route path="pond/:pondid" element={<PondDetail/>} />
+        <Route path="fish/:fishid" element={<FishDetail/>} />
 
 
 

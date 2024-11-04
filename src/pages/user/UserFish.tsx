@@ -8,6 +8,7 @@ import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
 import { formatDate } from "../../utils/formatDate";
+import { useNavigate } from "react-router-dom";
 
 // Define the type for a Fish
 interface Fish {
@@ -40,6 +41,7 @@ const FishManagement: React.FC = () => {
   const [editingFish, setEditingFish] = useState<Fish | null>(null);
   const [, setSearchTerm] = useState(""); // State cho từ khóa tìm kiếm
   const [form] = Form.useForm(); // Tạo form sử dụng antd
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchFish();
@@ -104,6 +106,11 @@ const FishManagement: React.FC = () => {
       pondID: pondId,
     };
 
+    if (!editingFish || !editingFish.id) {
+      message.error("Invalid fish ID for update.");
+      return;
+  }
+
     if (editingFish) {
       // Nếu có `editingFish`, gọi API cập nhật
       const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/update-fish/${editingFish.id}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
@@ -152,6 +159,14 @@ const FishManagement: React.FC = () => {
       title: 'Fish Name',
       dataIndex: 'fishName',
       key: 'fishName',
+      render: (text: string, record: Fish) => (
+        <a
+          onClick={() => navigate(`/fish/${record.id}`)}
+          style={{ cursor: "pointer", color: "#1890ff" }}
+        >
+          {text}
+        </a>
+      ),
     },
     {
       title: 'Image',
