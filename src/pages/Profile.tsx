@@ -46,7 +46,7 @@ const Profile: React.FC = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net//account/get-profile');
+      const response = await axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/account/get-profile');
       setUserProfile(response.data);
     } catch (error) {
       message.error("Failed to fetch user profile. Please try again.");

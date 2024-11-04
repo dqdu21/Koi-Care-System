@@ -22,6 +22,8 @@ import AppHeader from "../../components/layout/AppHeader";
 import SiderInstructor from "../../components/layout/SiderInstructor";
 import { axiosInstance } from "../../services/axiosInstance";
 import Sider from "antd/es/layout/Sider";
+import SiderAdmin from "../../components/layout/SiderAdmin";
+import SiderShop from "../../components/layout/SiderShop";
 
 
 const { Title, Text } = Typography;
@@ -58,8 +60,23 @@ const PondDetail: React.FC = () => {
   const [koiFishList, setKoiFishList] = useState<KoiFish[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/account/get-profile');
+      setUserProfile(response.data);
+    } catch (error) {
+      message.error("Failed to fetch user profile. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!pondID) {
@@ -147,6 +164,15 @@ const PondDetail: React.FC = () => {
   const getStatus = (value: number, min: number, max: number) =>
     value >= min && value <= max ? "  -  Stable" : "  -  Unstable";
 
+  const renderSider = () => {
+    if (userProfile?.email === 'ADMIN1@gmail.com') {
+      return <SiderAdmin />;
+    } else if (userProfile?.email === 'shop@gmail.com') {
+      return <SiderShop />;
+    }
+    return <SiderInstructor />;
+  };
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -168,7 +194,7 @@ const PondDetail: React.FC = () => {
             left: 0,
           }}
         >
-          <SiderInstructor />
+          {renderSider()}
         </Sider>
 
         <Layout

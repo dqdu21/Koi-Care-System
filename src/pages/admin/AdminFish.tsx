@@ -6,8 +6,9 @@ import { useSider } from "../../app/context/SiderProvider";
 import AppFooter from "../../components/layout/AppFooter";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
-import SiderAdmin from "../../components/layout/SiderAdmin";
 import { formatDate } from "../../utils/formatDate";
+import { useNavigate } from "react-router-dom";
+import SiderAdmin from "../../components/layout/SiderAdmin";
 
 // Define the type for a Fish
 interface Fish {
@@ -30,7 +31,7 @@ interface Pond {
   name: string;
 }
 
-const FishManagement: React.FC = () => {
+const AdminFish: React.FC = () => {
   const { collapsed } = useSider();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,7 @@ const FishManagement: React.FC = () => {
   const [editingFish, setEditingFish] = useState<Fish | null>(null);
   const [, setSearchTerm] = useState(""); // State cho từ khóa tìm kiếm
   const [form] = Form.useForm(); // Tạo form sử dụng antd
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchFish();
@@ -67,7 +69,7 @@ const FishManagement: React.FC = () => {
   };
 
   const fetchUserPonds = () => {
-    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account')
+    axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/get-all-ponds')
       .then((response) => {
         setPonds(response.data);
       });
@@ -106,7 +108,7 @@ const FishManagement: React.FC = () => {
 
     if (editingFish) {
       // Nếu có `editingFish`, gọi API cập nhật
-      const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/update-fish/${editingFish.id}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
+      const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/update-fish/${pondId}/ ${editingFish.id}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
       axiosInstance.put(url, fishData)
         .then(() => {
           message.success("Fish updated successfully!");
@@ -121,6 +123,7 @@ const FishManagement: React.FC = () => {
           setLoading(false);
         });
     } else {
+      // Nếu không có `editingFish`, gọi API tạo mới
       const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/create-fish/${pondId}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
       axiosInstance.post(url, fishData)
         .then((response) => {
@@ -151,6 +154,14 @@ const FishManagement: React.FC = () => {
       title: 'Fish Name',
       dataIndex: 'fishName',
       key: 'fishName',
+      render: (text: string, record: Fish) => (
+        <a
+          onClick={() => navigate(`/fish/${record.id}`)}
+          style={{ cursor: "pointer", color: "#1890ff" }}
+        >
+          {text}
+        </a>
+      ),
     },
     {
       title: 'Image',
@@ -234,7 +245,7 @@ const FishManagement: React.FC = () => {
         </Sider>
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
-          <Input.Search
+            <Input.Search
               placeholder="Search fish by name"
               onSearch={handleSearch}
               onChange={(e) => handleSearch(e.target.value)}
@@ -345,7 +356,7 @@ const FishManagement: React.FC = () => {
                 >
                   <Select>
                     <Select.Option value="HEALTHY">Healthy</Select.Option>
-                    <Select.Option value="SICK">Unhealthy</Select.Option>
+                    <Select.Option value="SICK">Sick</Select.Option>
                   </Select>
                 </Form.Item>
                 <Form.Item
@@ -362,14 +373,14 @@ const FishManagement: React.FC = () => {
               </Form>
             </Modal>
           
-          <Footer className="bg-black">
+          <Footer className="footer">
             <AppFooter />
           </Footer>
-          </Content>
+          </Content>  
         </Layout>
       </Layout>
     </Layout>
   );
 };
 
-export default FishManagement;
+export default AdminFish;

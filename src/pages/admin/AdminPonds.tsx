@@ -4,10 +4,10 @@ import { Content, Footer, Header } from "antd/es/layout/layout";
 import { useState, useEffect } from "react";
 import { useSider } from "../../app/context/SiderProvider";
 import AppFooter from "../../components/layout/AppFooter";
-import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import SiderAdmin from "../../components/layout/SiderAdmin";
 
 interface Pond {
   id?: number;
@@ -32,7 +32,7 @@ const AdminPonds: React.FC = () => {
   useEffect(() => {
     const fetchPonds = async () => {
       try {
-        const response = await axiosInstance.get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account");
+        const response = await axiosInstance.get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/get-all-ponds");
         setPonds(response.data);
         setFilteredPonds(response.data);
       } catch (error) {
@@ -188,7 +188,7 @@ const AdminPonds: React.FC = () => {
           trigger={null}
           width={230}
         >
-          <SiderInstructor
+          <SiderAdmin
             className={`transition-all duration-75 ${collapsed ? "w-0" : "w-64"}`}
           />
         </Sider>

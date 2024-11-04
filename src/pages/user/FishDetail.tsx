@@ -15,6 +15,8 @@ import {
 } from '@ant-design/icons';
 import Sider from 'antd/es/layout/Sider';
 import { formatDate } from '../../utils/formatDate';
+import SiderAdmin from '../../components/layout/SiderAdmin';
+import SiderShop from '../../components/layout/SiderShop';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -58,6 +60,23 @@ const FishDetail: React.FC = () => {
   const [feedingData, setFeedingData] = useState<FeedingData[]>([]);
   const [feedingModalVisible, setFeedingModalVisible] = useState<boolean>(false);
   const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+
+  const fetchUserProfile = async () => {
+    try {
+      const response = await axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/account/get-profile');
+      setUserProfile(response.data);
+    } catch (error) {
+      message.error("Failed to fetch user profile. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchFishData = async () => {
@@ -124,6 +143,15 @@ const FishDetail: React.FC = () => {
     }
   };
 
+  const renderSider = () => {
+    if (userProfile?.email === 'ADMIN1@gmail.com') {
+      return <SiderAdmin />;
+    } else if (userProfile?.email === 'shop@gmail.com') {
+      return <SiderShop />;
+    }
+    return <SiderInstructor />;
+  };
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Header style={{ position: 'fixed', width: '100%', zIndex: 1, padding: 0 }}>
@@ -143,7 +171,7 @@ const FishDetail: React.FC = () => {
             left: 0,
           }}
         >
-          <SiderInstructor />
+          {renderSider()}
         </Sider>
 
         <Layout style={{ marginLeft: collapsed ? 0 : 230, transition: 'all 0.2s' }}>

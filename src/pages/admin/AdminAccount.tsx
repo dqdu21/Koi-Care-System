@@ -194,6 +194,7 @@ const AdminAccount: React.FC = () => {
                 <Form.Item name="role" label="Role">
                   <Select>
                     <Select.Option value="ADMIN">Admin</Select.Option>
+                    <Select.Option value="SHOP">Shop</Select.Option>
                     <Select.Option value="USER">User</Select.Option>
                   </Select>
                 </Form.Item>
