@@ -89,7 +89,7 @@ const AppRouter = () => {
         <Route path="pond" element={<UserPonds />} />
         <Route path="ticket" element={<UserTicket />} />
         <Route path="fish" element={<FishManagement />} />
-        {/* <Route path="pond/view-pond-by-account/:id" element={<PondDetail/>} /> */}
+        <Route path="pond/:id" element={<PondDetail/>} />
 
 
 

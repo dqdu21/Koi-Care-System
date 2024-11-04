@@ -71,7 +71,8 @@ const UserPonds: React.FC = () => {
       title: "Fish Names",
       dataIndex: "fishname",
       key: "fishname",
-      render: (fishname: string[]) => fishname.join(", "),
+      render: (fishname: string | undefined) => 
+        Array.isArray(fishname) ? fishname.join(", ") : fishname || "No fish",
     },
     {
       title: "Image",
@@ -84,6 +85,12 @@ const UserPonds: React.FC = () => {
       dataIndex: "pondSize",
       key: "pondSize",
       render: (pondSize: number) => `${pondSize} m²`,
+    },
+    {
+      title: "Height (m)",
+      dataIndex: "height",
+      key: "height",
+      render: (height: number) => `${height} m`,
     },
     {
       title: "Volume (m³)",

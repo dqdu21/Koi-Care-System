@@ -38,7 +38,7 @@ const PondDetail: React.FC = () => {
     const fetchPondDetails = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/pond/${pondID}`);
+        const response = await axiosInstance.get(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/pond/view-pond-by-id/${pondID}`);
         setPond(response.data);
       } catch (error) {
         console.error("Error fetching pond details:", error);

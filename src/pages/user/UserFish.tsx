@@ -346,7 +346,7 @@ const FishManagement: React.FC = () => {
                 >
                   <Select>
                     <Select.Option value="HEALTHY">Healthy</Select.Option>
-                    <Select.Option value="SICK">Unhealthy</Select.Option>
+                    <Select.Option value="SICK">Sick</Select.Option>
                   </Select>
                 </Form.Item>
                 <Form.Item

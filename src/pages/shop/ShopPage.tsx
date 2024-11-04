@@ -37,9 +37,6 @@ const ShopPage = () => {
         <Overview />
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="text-center w-full h-96 md:h-400 lg:h-500">
-            <InstructorChart />
-          </div>
-          <div className="text-center w-full h-96 md:h-400 lg:h-500">
             <InstructorPie />
           </div>
         </div>
