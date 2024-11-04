@@ -12,7 +12,7 @@ const { Option } = Select;
 
 interface Ticket {
   id?: number;
-  name: string; // Tên vé
+  title: string; // Tên vé
   text: string; // Nội dung tin nhắn
   pondName: string; // Tên hồ
   fishName: string; // Tên cá
@@ -82,7 +82,7 @@ const UserTicket: React.FC = () => {
     setLoading(true);
     axiosInstance
       .post(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ticket/create-ticket/${values.pondID}/${values.fishID}`, {
-        name: values.name,
+        title: values.title,
         text: values.text,
       })
       .then(() => {
@@ -105,7 +105,7 @@ const UserTicket: React.FC = () => {
       setLoading(true);
       axiosInstance
         .post(`https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ticket/create-ticket/${editingTicket.id}/${values.pondID}/${values.fishID}`, {
-          name: values.name,
+          title: values.title,
           text: values.text,
         })
         .then(() => {
@@ -128,7 +128,7 @@ const UserTicket: React.FC = () => {
     setIsEditMode(true);
     setEditingTicket(ticket);
     form.setFieldsValue({
-      name: ticket.name,
+      title: ticket.title,
       text: ticket.text,
       pondID: ticket.pondID,
       fishID: ticket.fishID,
@@ -150,9 +150,9 @@ const UserTicket: React.FC = () => {
 
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      title: 'Title',
+      dataIndex: 'title',
+      key: 'title',
     },
     {
       title: 'Text',
@@ -232,8 +232,8 @@ const UserTicket: React.FC = () => {
             >
               <Form layout="vertical" onFinish={isEditMode ? handleEditTicket : handleCreateTicket} form={form}>
                 <Form.Item
-                  label="Name"
-                  name="name"
+                  label="Title"
+                  name="title"
                   rules={[{ required: true, message: "Please input the ticket name!" }]}
                 >
                   <Input />

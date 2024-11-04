@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Spin, Card, Row, Col, Typography, Tag, Divider, Descriptions, message } from 'antd';
+import { Layout, Spin, Card, Row, Col, Typography, Tag, Divider, Descriptions, message, List, Modal, Select, Button, Table } from 'antd';
 import { Header, Content } from 'antd/es/layout/layout';
 import { useParams } from 'react-router-dom';
 import { useSider } from '../../app/context/SiderProvider';
@@ -14,8 +14,10 @@ import {
   WarningOutlined
 } from '@ant-design/icons';
 import Sider from 'antd/es/layout/Sider';
+import { formatDate } from '../../utils/formatDate';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 interface FishData {
   fishName: string;
@@ -31,11 +33,31 @@ interface FishData {
   pondID: number;
 }
 
+interface FishHistory {
+    fishID: number;
+    name: string;
+    addDate: string;
+    endDate: string;
+    message: string;
+  }
+
+  interface FeedingData {
+    id: number;
+    foodType: string;
+    amount: number;
+    feedingTime: string;
+  }
+
 const FishDetail: React.FC = () => {
   const { collapsed } = useSider();
   const { fishid } = useParams<{ fishid: string }>();
   const [fishData, setFishData] = useState<FishData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [loadingHistory, setLoadingHistory] = useState<boolean>(true);
+  const [fishHistory, setFishHistory] = useState<FishHistory[]>([]);
+  const [feedingData, setFeedingData] = useState<FeedingData[]>([]);
+  const [feedingModalVisible, setFeedingModalVisible] = useState<boolean>(false);
+  const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFishData = async () => {
@@ -48,8 +70,46 @@ const FishDetail: React.FC = () => {
         setLoading(false);
       }
     };
+
+    const fetchFishHistory = async () => {
+      try {
+        const response = await axiosInstance.get(`/koifish/get-history/${fishid}`);
+        setFishHistory(response.data);
+      } catch (error) {
+        message.error('Failed to load fish history.');
+      } finally {
+        setLoadingHistory(false);
+      }
+    };
+
     fetchFishData();
+    fetchFishHistory();
   }, [fishid]);
+
+  const handleFeedFish = async () => {
+    if (!selectedFoodType) {
+      message.warning("Please select a food type.");
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post(`/koifish/calculate-food?idPond=${fishData?.pondID}&foodType=${selectedFoodType}`);
+      setFeedingData([...feedingData, response.data]);
+      message.success("Feeding information updated successfully.");
+    } catch (error) {
+      message.error("Failed to fetch feeding information.");
+    } finally {
+      setFeedingModalVisible(false);
+      setSelectedFoodType(null);
+    }
+  };
+
+  const feedingColumns = [
+    { title: 'ID', dataIndex: 'id', key: 'id' },
+    { title: 'Food Type', dataIndex: 'foodType', key: 'foodType' },
+    { title: 'Amount (kg)', dataIndex: 'amount', key: 'amount' },
+    { title: 'Feeding Time', dataIndex: 'feedingTime', key: 'feedingTime' ,render: (text: string) => formatDate(text)},
+  ];
 
   const getHealthStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -173,8 +233,38 @@ const FishDetail: React.FC = () => {
                         </Descriptions.Item>
                       </Descriptions>
                     </Card>
+                    {/* Feeding Information Section */}
+                <Card title="Feeding Information" style={{ marginTop: 24 }}>
+                  <Button    type="primary" onClick={() => setFeedingModalVisible(true)}>
+                    Feed Fish
+                  </Button>
+                  <Table
+                    columns={feedingColumns}
+                    dataSource={feedingData}
+                    rowKey="id"
+                    style={{ marginTop: 16 }}
+                  />
+                </Card>
+
+                {/* Feed Fish Modal */}
+                <Modal
+                  title="Select Food Type"
+                  visible={feedingModalVisible}
+                  onOk={handleFeedFish}
+                  onCancel={() => setFeedingModalVisible(false)}
+                >
+                  <Select
+                    placeholder="Choose food type"
+                    onChange={(value) => setSelectedFoodType(value)}
+                    style={{ width: '100%' }}
+                  >
+                    <Option value="AQUAMASTER">AQUAMASTER</Option>
+                    <Option value="SAKURA">SAKURA</Option>
+                    <Option value="RIO">RIO</Option>
+                  </Select>
+                </Modal>
+             
                   </Col>
-                  
                   <Col xs={24} lg={8}>
                     <Card 
                       title={
@@ -198,6 +288,37 @@ const FishDetail: React.FC = () => {
                         <Text type="secondary">Last Check: Today</Text>
                       </div>
                     </Card>
+
+                  
+                  
+                  
+
+                    {/* Fish History Section */}
+                <Card title="Fish History" style={{ marginTop: 24 }}>
+                  {loadingHistory ? (
+                    <Spin size="large" />
+                  ) : (
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={fishHistory}
+                      renderItem={(history) => (
+                        <List.Item>
+                          <List.Item.Meta
+                            title={<Text strong>{history.name}</Text>}
+                            description={
+                              <>
+                                <Text>Start Date: {new Date(history.addDate).toLocaleString()}</Text><br />
+                                <Text>Change Date: {new Date(history.endDate).toLocaleString()}</Text><br />
+                                <Text>Message: {history.message}</Text>
+                              </>
+                            }
+                          />
+                        </List.Item>
+                      )}
+                      
+                    />
+                  )}
+                </Card>
                   </Col>
                 </Row>
               </div>

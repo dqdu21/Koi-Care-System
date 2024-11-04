@@ -4,9 +4,10 @@ import { Content, Footer, Header } from "antd/es/layout/layout";
 import { useState, useEffect } from "react";
 import { useSider } from "../../app/context/SiderProvider";
 import AppFooter from "../../components/layout/AppFooter";
-import SiderAdmin from "../../components/layout/SiderAdmin";
+import SiderInstructor from "../../components/layout/SiderInstructor";
 import AppHeader from "../../components/layout/AppHeader";
 import { axiosInstance } from "../../services/axiosInstance";
+import { useNavigate } from "react-router-dom";
 
 interface Pond {
   id?: number;
@@ -17,8 +18,7 @@ interface Pond {
   height: number;
 }
 
-
-const UserPonds: React.FC = () => {
+const AdminPonds: React.FC = () => {
   const { collapsed } = useSider();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -27,12 +27,12 @@ const UserPonds: React.FC = () => {
   const [editingPond, setEditingPond] = useState<Pond | null>(null);
   const [searchText, setSearchText] = useState("");
   const [form] = Form.useForm();
+  const navigate = useNavigate();
 
-  // Fetch ponds data from API when component mounts
   useEffect(() => {
     const fetchPonds = async () => {
       try {
-        const response = await axiosInstance.get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/get-all-ponds");
+        const response = await axiosInstance.get("https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/ponds/view-pond-by-account");
         setPonds(response.data);
         setFilteredPonds(response.data);
       } catch (error) {
@@ -58,12 +58,21 @@ const UserPonds: React.FC = () => {
       title: "Pond Name",
       dataIndex: "namePond",
       key: "namePond",
+      render: (text: string, record: Pond) => (
+        <a
+          onClick={() => navigate(`/pond/${record.id}`)}
+          style={{ cursor: "pointer", color: "#1890ff" }}
+        >
+          {text}
+        </a>
+      ),
     },
     {
       title: "Fish Names",
       dataIndex: "fishname",
       key: "fishname",
-      render: (fishname: string[]) => fishname.join(", "),
+      render: (fishname: string | undefined) => 
+        Array.isArray(fishname) ? fishname.join(", ") : fishname || "No fish",
     },
     {
       title: "Image",
@@ -78,6 +87,12 @@ const UserPonds: React.FC = () => {
       render: (pondSize: number) => `${pondSize} m²`,
     },
     {
+      title: "Height (m)",
+      dataIndex: "height",
+      key: "height",
+      render: (height: number) => `${height} m`,
+    },
+    {
       title: "Volume (m³)",
       dataIndex: "volume",
       key: "volume",
@@ -88,7 +103,7 @@ const UserPonds: React.FC = () => {
       key: "actions",
       render: (record: Pond) => (
         <>
-          <Button onClick={() => handleEditPond(record)} style={{ marginRight: 8 }}>
+          <Button onClick={() => handleEditPond(record)}>
             Update
           </Button>
           <Popconfirm title="Sure to delete?" onConfirm={() => handleDeletePond(record.id)}>
@@ -160,7 +175,6 @@ const UserPonds: React.FC = () => {
     setIsModalVisible(true);
   };
 
-
   return (
     <Layout className="flex h-screen w-screen flex-col">
       <Header className="header">
@@ -174,13 +188,13 @@ const UserPonds: React.FC = () => {
           trigger={null}
           width={230}
         >
-          <SiderAdmin
+          <SiderInstructor
             className={`transition-all duration-75 ${collapsed ? "w-0" : "w-64"}`}
           />
         </Sider>
         <Layout className="flex flex-1 flex-col p-4">
           <Content className="flex-1 overflow-y-auto">
-          <Input
+            <Input
               placeholder="Search by pond name"
               value={searchText}
               onChange={handleSearch}
@@ -255,4 +269,4 @@ const UserPonds: React.FC = () => {
   );
 };
 
-export default UserPonds;
+export default AdminPonds;
