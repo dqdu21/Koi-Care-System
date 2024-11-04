@@ -106,14 +106,9 @@ const FishManagement: React.FC = () => {
       pondID: pondId,
     };
 
-    if (!editingFish || !editingFish.id) {
-      message.error("Invalid fish ID for update.");
-      return;
-  }
-
     if (editingFish) {
       // Nếu có `editingFish`, gọi API cập nhật
-      const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/update-fish/${editingFish.id}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
+      const url = `https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/koifish/update-fish/${pondId}/ ${editingFish.id}?species=${species}&gender=${gender}&origin=${origin}&healthyStatus=${healthyStatus}`;
       axiosInstance.put(url, fishData)
         .then(() => {
           message.success("Fish updated successfully!");
