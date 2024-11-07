@@ -162,12 +162,6 @@ const FormSignIn = () => {
             Sign In
           </Button>
 
-          <p className="mb-0 text-sm font-semibold">
-            Don't have an account?{" "}
-            <a href="sign-up" className="text-red-500">
-              Sign Up
-            </a>
-          </p>
         </Form.Item>
       </Form>
     </div>

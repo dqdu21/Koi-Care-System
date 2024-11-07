@@ -25,7 +25,6 @@ import Sider from "antd/es/layout/Sider";
 import SiderAdmin from "../../components/layout/SiderAdmin";
 import SiderShop from "../../components/layout/SiderShop";
 
-
 const { Title, Text } = Typography;
 
 interface PondData {
@@ -41,13 +40,11 @@ interface PondData {
   o2: string;
 }
 
-
 interface KoiFish {
-  id: string;
-  name: string;
-  image: string;
+  id: number;
+  fishName: string;
+  imageFish: string;
 }
-
 
 const PondDetail: React.FC = () => {
   const { collapsed } = useSider();
@@ -69,7 +66,9 @@ const PondDetail: React.FC = () => {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await axiosInstance.get('https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/account/get-profile');
+      const response = await axiosInstance.get(
+        "https://carekoisystem-chb5b3gdaqfwanfr.canadacentral-01.azurewebsites.net/account/get-profile"
+      );
       setUserProfile(response.data);
     } catch (error) {
       message.error("Failed to fetch user profile. Please try again.");
@@ -103,8 +102,7 @@ const PondDetail: React.FC = () => {
           `/ponds/history-change-water/${pondID}`
         );
         setWaterChangeHistory(response.data.historyChangeWater || []);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     const fetchDayChangeWater = async () => {
@@ -113,8 +111,7 @@ const PondDetail: React.FC = () => {
           `/ponds/change-water/${pondID}`
         );
         setDayChangeWater(response.data.dayChangeWater);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     const fetchAutoFilterMessage = async () => {
@@ -123,16 +120,16 @@ const PondDetail: React.FC = () => {
           `/water-parameter/number-day-auto-filter-water/${pondID}`
         );
         setAutoFilterMessage(response.data.message);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     const fetchKoiFishList = async () => {
       try {
-        const response = await axiosInstance.get(`/koifish/get-koi-fish-by-account`);
-        setKoiFishList(response.data.koiFish || []);
-      } catch (error) {
-      }
+        const response = await axiosInstance.get(
+          `/koifish/get-fish-by-pond-id/${pondID}`
+        );
+        setKoiFishList(response.data || []);
+      } catch (error) {}
     };
 
     fetchKoiFishList();
@@ -165,17 +162,30 @@ const PondDetail: React.FC = () => {
     value >= min && value <= max ? "  -  Stable" : "  -  Unstable";
 
   const renderSider = () => {
-    if (userProfile?.email === 'ADMIN1@gmail.com') {
-      return <SiderAdmin />;
-    } else if (userProfile?.email === 'shop@gmail.com') {
-      return <SiderShop />;
+    if (userProfile?.email === "ADMIN1@gmail.com") {
+      return (
+        <SiderAdmin
+          className={`transition-all duration-75 ${collapsed ? "w-0" : "w-64"}`}
+        />
+      );
+    } else if (userProfile?.email === "shop@gmail.com") {
+      return (
+        <SiderShop
+          className={`transition-all duration-75 ${collapsed ? "w-0" : "w-64"}`}
+        />
+      );
     }
-    return <SiderInstructor />;
+    return (
+      <SiderInstructor
+        className={`transition-all duration-75 ${collapsed ? "w-0" : "w-64"}`}
+      />
+    );
   };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
+        className="header"
         style={{ position: "fixed", width: "100%", zIndex: 1, padding: 0 }}
       >
         <AppHeader />
@@ -183,6 +193,7 @@ const PondDetail: React.FC = () => {
 
       <Layout style={{ marginTop: 64 }}>
         <Sider
+          className="sider"
           collapsed={collapsed}
           collapsedWidth={0}
           trigger={null}
@@ -236,7 +247,7 @@ const PondDetail: React.FC = () => {
                               />
                             </Card>
                           </Col>
-                          <Col span={12}>
+                          <Col span={24}>
                             <Card size="small">
                               <Statistic
                                 title="Next Water Change"
@@ -244,14 +255,14 @@ const PondDetail: React.FC = () => {
                               />
                             </Card>
                           </Col>
-                          <Col span={12}>
+                          {/* <Col span={12}>
                             <Card size="small">
                               <Statistic
                                 title="Auto Filter Schedule"
                                 value={autoFilterMessage || "Loading..."}
                               />
                             </Card>
-                          </Col>
+                          </Col> */}
                         </Row>
                       </div>
                     </Col>
@@ -301,7 +312,7 @@ const PondDetail: React.FC = () => {
                         dataSource={waterChangeHistory}
                         renderItem={(item) => (
                           <List.Item>
-                            <Text>{(item)}</Text>
+                            <Text>{item.toLocaleString()}</Text>
                           </List.Item>
                         )}
                         locale={{
@@ -318,25 +329,26 @@ const PondDetail: React.FC = () => {
               </div>
             )}
             {/* Koi Fish List Section */}
-            <Row gutter={[24, 24]} className="mt-6">
+            <div className="max-w-7xl mx-auto">
+                <Row gutter={[24, 24]} className="mt-6">
                   <Col span={24}>
-                    <Card title="Koi Fish in Pond" bordered={false}>
-                      <Row gutter={[16, 16]}>
-                        {koiFishList.map((fish) => (
-                          <Col xs={24} sm={12} md={8} lg={6} key={fish.id}>
-                            <Card
-                              hoverable
-                              cover={<img alt={fish.name} src={fish.image} />}
-                              onClick={() => navigate(`/fish/${fish.id}`)}
-                            >
-                              <Card.Meta title={fish.name} />
-                            </Card>
-                          </Col>
-                        ))}
-                      </Row>
-                    </Card>
+                    <Typography.Title level={3}>Koi Fish in Pond</Typography.Title>
+                    <Row gutter={[16, 16]}>
+                      {koiFishList.map((fish) => (
+                        <Col xs={24} sm={12} md={8} lg={6} key={fish.id}>
+                          <Card
+                            hoverable
+                            cover={<img alt={fish.fishName} src={fish.imageFish} />}
+                            onClick={() => navigate(`/fish/${fish.id}`)}
+                          >
+                            <Card.Meta title={fish.fishName} />
+                          </Card>
+                        </Col>
+                      ))}
+                    </Row>
                   </Col>
                 </Row>
+              </div>
           </Content>
         </Layout>
       </Layout>

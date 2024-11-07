@@ -372,10 +372,6 @@ const FishManagement: React.FC = () => {
                 </Form.Item>
               </Form>
             </Modal>
-          
-          <Footer className="footer">
-            <AppFooter />
-          </Footer>
           </Content>  
         </Layout>
       </Layout>
