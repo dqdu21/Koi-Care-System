@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Layout, Spin, Card, Row, Col, Typography, Tag, Divider, Descriptions, message, List, Modal, Select, Button, Table } from 'antd';
+import { Layout, Spin, Card, Row, Col, Typography, Tag, Divider, Descriptions, message, List, Modal, Select, Button, Table, Input, Statistic } from 'antd';
 import { Header, Content } from 'antd/es/layout/layout';
 import { useParams } from 'react-router-dom';
 import { useSider } from '../../app/context/SiderProvider';
@@ -11,7 +11,8 @@ import {
   HeartOutlined,
   CalendarOutlined,
   InfoCircleOutlined,
-  WarningOutlined
+  WarningOutlined,
+  EditOutlined
 } from '@ant-design/icons';
 import Sider from 'antd/es/layout/Sider';
 import { formatDate } from '../../utils/formatDate';
@@ -36,19 +37,19 @@ interface FishData {
 }
 
 interface FishHistory {
-    fishID: number;
-    name: string;
-    addDate: string;
-    endDate: string;
-    message: string;
-  }
+  fishID: number;
+  name: string;
+  addDate: string;
+  endDate: string;
+  message: string;
+}
 
-  interface FeedingData {
-    id: number;
-    foodType: string;
-    amount: number;
-    feedingTime: string;
-  }
+interface FeedingData {
+  id: number;
+  foodType: string;
+  amount: number;
+  feedingTime: string;
+}
 
 const FishDetail: React.FC = () => {
   const { collapsed } = useSider();
@@ -61,7 +62,8 @@ const FishDetail: React.FC = () => {
   const [feedingModalVisible, setFeedingModalVisible] = useState<boolean>(false);
   const [selectedFoodType, setSelectedFoodType] = useState<string | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
-
+  const [editModalVisible, setEditModalVisible] = useState<boolean>(false);
+  const [newPondID, setNewPondID] = useState<number | null>(null);
 
   useEffect(() => {
     fetchUserProfile();
@@ -104,6 +106,42 @@ const FishDetail: React.FC = () => {
     fetchFishData();
     fetchFishHistory();
   }, [fishid]);
+
+  const handleEditPondID = async () => {
+    if (!newPondID || !fishData) {
+      message.warning("Please enter a valid Pond ID.");
+      return;
+    }
+
+    try {
+      await axiosInstance.put(`/koifish/update-fish/${fishData.pondID}/${fishid}`, 
+        {
+          pondID: newPondID
+        }, 
+        {
+          params: {
+            fishName: fishData.fishName,
+            imageFish: fishData.imageFish,
+            birthDay: fishData.birthDay,
+            species: fishData.species,
+            size: fishData.size,
+            weigh: fishData.weigh,
+            gender: fishData.gender,
+            origin: fishData.origin,
+            healthyStatus: fishData.healthyStatus,
+            note: fishData.note
+          }
+        }
+      );
+  
+      setFishData({ ...fishData, pondID: newPondID });
+      message.success("Pond ID updated successfully.");
+    } catch (error) {
+      message.error("Failed to update Pond ID.");
+    } finally {
+      setEditModalVisible(false);
+    }
+  };
 
   const handleFeedFish = async () => {
     if (!selectedFoodType) {
@@ -160,6 +198,7 @@ const FishDetail: React.FC = () => {
       
       <Layout style={{ marginTop: 64 }}>
         <Sider
+          className='sider'
           collapsed={collapsed}
           collapsedWidth={0}
           trigger={null}
@@ -182,7 +221,6 @@ const FishDetail: React.FC = () => {
               </div>
             ) : fishData ? (
               <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-                {/* Header Card */}
                 <Card style={{ marginBottom: 24 }}>
                   <Row gutter={[24, 24]}>
                     <Col xs={24} md={10}>
@@ -242,7 +280,6 @@ const FishDetail: React.FC = () => {
                   </Row>
                 </Card>
 
-                {/* Details Section */}
                 <Row gutter={[24, 24]}>
                   <Col xs={24} lg={16}>
                     <Card title="Detailed Information" bordered={false}>
@@ -250,39 +287,62 @@ const FishDetail: React.FC = () => {
                         <Descriptions.Item label="Birth Date">
                           <CalendarOutlined /> {fishData.birthDay}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Gender">
-                          {fishData.gender}
-                        </Descriptions.Item>
+                        <Descriptions.Item label="Gender">{fishData.gender}</Descriptions.Item>
                         <Descriptions.Item label="Pond ID">
                           #{fishData.pondID}
+                          {/* <Button
+                            icon={<EditOutlined />}
+                            type="link"
+                            onClick={() => {
+                              setEditModalVisible(true);
+                              setNewPondID(fishData.pondID); // set initial value to current pondID
+                            }}
+                          >
+                            Edit
+                          </Button> */}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Notes">
-                          {fishData.note || 'No additional notes'}
-                        </Descriptions.Item>
+                        <Descriptions.Item label="Notes">{fishData.note || 'No additional notes'}</Descriptions.Item>
                       </Descriptions>
                     </Card>
-                    {/* Feeding Information Section */}
-                <Card title="Feeding Information" style={{ marginTop: 24 }}>
-                  <Button    type="primary" onClick={() => setFeedingModalVisible(true)}>
-                    Feed Fish
-                  </Button>
-                  <Table
-                    columns={feedingColumns}
-                    dataSource={feedingData}
-                    rowKey="id"
-                    style={{ marginTop: 16 }}
-                  />
-                </Card>
 
-                {/* Feed Fish Modal */}
+                    <Card title="Feeding Information" bordered={false} style={{ marginTop: 24 }}>
+                      <Button type="primary" onClick={() => setFeedingModalVisible(true)}>Add Feeding Info</Button>
+                      <Table columns={feedingColumns} dataSource={feedingData} pagination={false} style={{ marginTop: 16 }} />
+                    </Card>
+                  </Col>
+
+                  <Col xs={24} lg={8}>
+                    <Card title="Fish History" bordered={false}>
+                      {loadingHistory ? (
+                        <Spin />
+                      ) : (
+                        <List
+                          itemLayout="horizontal"
+                          dataSource={fishHistory}
+                          renderItem={(item) => (
+                            <List.Item>
+                              <List.Item.Meta
+                                title={`${item.name} - ${item.message}`}
+                                description={`${formatDate(item.addDate)} / ${item.endDate ? formatDate(item.endDate) : 'Ongoing'}`}
+                              />
+                            </List.Item>
+                          )}
+                        />
+                      )}
+                    </Card>
+                  </Col>
+                </Row>
+
+                {/* Feeding Modal */}
                 <Modal
-                  title="Select Food Type"
+                  title="Add Feeding Info"
                   visible={feedingModalVisible}
                   onOk={handleFeedFish}
                   onCancel={() => setFeedingModalVisible(false)}
                 >
                   <Select
-                    placeholder="Choose food type"
+                    placeholder="Select Food Type"
+                    value={selectedFoodType}
                     onChange={(value) => setSelectedFoodType(value)}
                     style={{ width: '100%' }}
                   >
@@ -291,64 +351,21 @@ const FishDetail: React.FC = () => {
                     <Option value="RIO">RIO</Option>
                   </Select>
                 </Modal>
-             
-                  </Col>
-                  <Col xs={24} lg={8}>
-                    <Card 
-                      title={
-                        <span>
-                          <HeartOutlined style={{ marginRight: 8 }} />
-                          Health Status
-                        </span>
-                      }
-                      bordered={false}
-                    >
-                      <div style={{ padding: '20px 0' }}>
-                        <Tag 
-                          color={getHealthStatusColor(fishData.healthyStatus)}
-                          style={{ padding: '8px 16px', fontSize: 16 }}
-                        >
-                          {fishData.healthyStatus}
-                        </Tag>
-                      </div>
-                      <Divider />
-                      <div>
-                        <Text type="secondary">Last Check: Today</Text>
-                      </div>
-                    </Card>
 
-                  
-                  
-                  
-
-                    {/* Fish History Section */}
-                <Card title="Fish History" style={{ marginTop: 24 }}>
-                  {loadingHistory ? (
-                    <Spin size="large" />
-                  ) : (
-                    <List
-                      itemLayout="horizontal"
-                      dataSource={fishHistory}
-                      renderItem={(history) => (
-                        <List.Item>
-                          <List.Item.Meta
-                            title={<Text strong>{history.name}</Text>}
-                            description={
-                              <>
-                                <Text>Start Date: {new Date(history.addDate).toLocaleString()}</Text><br />
-                                <Text>Change Date: {new Date(history.endDate).toLocaleString()}</Text><br />
-                                <Text>Message: {history.message}</Text>
-                              </>
-                            }
-                          />
-                        </List.Item>
-                      )}
-                      
-                    />
-                  )}
-                </Card>
-                  </Col>
-                </Row>
+                {/* Edit Pond ID Modal */}
+                <Modal
+                  title="Edit Pond ID"
+                  visible={editModalVisible}
+                  onOk={handleEditPondID}
+                  onCancel={() => setEditModalVisible(false)}
+                >
+                  <Input
+                    placeholder="Enter new Pond ID"
+                    value={newPondID ?? ''}
+                    onChange={(e) => setNewPondID(Number(e.target.value))}
+                    type="number"
+                  />
+                </Modal>
               </div>
             ) : (
               <Card style={{ textAlign: 'center', marginTop: 100 }}>
@@ -362,20 +379,5 @@ const FishDetail: React.FC = () => {
     </Layout>
   );
 };
-
-// Helper Component for Statistics
-const Statistic: React.FC<{
-  title: string;
-  value: string;
-  prefix?: React.ReactNode;
-}> = ({ title, value, prefix }) => (
-  <div>
-    <Text type="secondary" style={{ fontSize: 12 }}>{title}</Text>
-    <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
-      {prefix && <span style={{ marginRight: 8 }}>{prefix}</span>}
-      <Text strong style={{ fontSize: 16 }}>{value}</Text>
-    </div>
-  </div>
-);
 
 export default FishDetail;
