@@ -160,6 +160,20 @@ const FishDetail: React.FC = () => {
       setSelectedFoodType(null);
     }
   };
+  const fetchFeedingData = async () => {
+    try {
+      const response = await axiosInstance.get(`/ponds/get-feeding/${fishData?.pondID}`);
+      setFeedingData(response.data);
+    } catch (error) {
+      message.error('Failed to fetch feeding information.');
+    }
+  };
+
+  useEffect(() => {
+    if (fishData) {
+      fetchFeedingData();
+    }
+  }, [fishData]);
 
   const feedingColumns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
